@@ -17,7 +17,14 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "dotenv -e .env -- typeorm-ts-node-commonjs -d ./src/data-source.ts",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "db:dev:rm": "docker-compose rm -s -f -v dev-blog-db",
+    "db:dev:up": "docker-compose up -d dev-blog-db",
+    "db:dev:restart": "npm run db:dev:rm && npm run db:dev:up && node -e \"setTimeout(() => { process.exit(0); }, 1000)\" && npm run migration:run"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -51,6 +58,7 @@
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "dotenv-cli": "^7.2.1",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
