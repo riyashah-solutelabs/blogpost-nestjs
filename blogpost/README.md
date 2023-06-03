@@ -1,3 +1,10 @@
+docker-compose up dev-blog-db
+docker ps
+
+docker pull getmeili/meilisearch:v1.1
+docker run -p 7800:7700 getmeili/meilisearch:v1.1
+
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
