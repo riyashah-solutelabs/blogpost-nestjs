@@ -31,7 +31,6 @@ export class CommentController {
     })
     @ApiNoContentResponse({ description: 'comment deleted successfully' })
     @HttpCode(204)
-    // @Roles(Constants.ROLES.NORMAL_ROLE, Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Delete('posts/:postId/comments/:commentId')
     deleteComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
         return this.commentService.deleteComment(user, postId, commentId);

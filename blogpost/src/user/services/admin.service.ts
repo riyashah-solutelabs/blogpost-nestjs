@@ -80,14 +80,6 @@ export class AdminService {
     }
 
     async getPostByUserId(userId: number) {
-        // const post = await this.postRepo.find({
-        //     relations: ['author'],
-        //     where: {
-        //         author: {
-        //             id: userId
-        //         }
-        //     }
-        // })
         const posts = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.author', 'author')
@@ -97,11 +89,6 @@ export class AdminService {
             .getMany();
         
         return posts;
-        // console.log(post);
-        // if(!post) {
-        //     return 'No posts found';
-        // }
-        // return post;
     }
 
     async getPostById(postId: number) {

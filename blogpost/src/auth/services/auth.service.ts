@@ -3,7 +3,6 @@ import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { UserRepository } from '../../user/repository/user.repo';
 import { User } from '../../user/entities/user.entity';
 import { UserService } from '../../user/services/user.service';
-// import * as bcrypt from 'bcrypt';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { JwtService } from '@nestjs/jwt';

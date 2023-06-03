@@ -14,9 +14,6 @@ export class SearchService {
     }
 
     // create or get index
-    // private getMovieIndex(): Index {
-    //     return this._client.index('movies');
-    // }
     private getPostIndex(): Index {
         return this._client.index('posts');
     }
@@ -24,10 +21,6 @@ export class SearchService {
         return this._client.index('users');
     }
 
-    // public async addDocumentsMovie(documents){
-    //     const index = this.getMovieIndex();
-    //     return await index.addDocuments(documents);
-    // }
     public async addDocumentsPost(documents) {
         const index = this.getPostIndex();
         return await index.addDocuments(documents);
@@ -45,10 +38,6 @@ export class SearchService {
         return await index.deleteAllDocuments();
     }
 
-    // public async search(text: string, searchParams?: SearchParams) {
-    //     const index = this.getMovieIndex();
-    //     return await index.search(text, searchParams)
-    // }
     public async search(user: any, text: string, searchParams?: SearchParams) {
         const index = this.getPostIndex();
         const search = await index.search(text, searchParams);

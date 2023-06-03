@@ -13,7 +13,9 @@ export class PostService {
         const user = await this.userService.findUserById(userId);
         const post = await this.postRepo.create(createpost);
         post.author = user;
-        return await this.postRepo.save(post);
+        const savedPost = await this.postRepo.save(post);
+        delete savedPost.author.password;
+        return savedPost;
     }
 
     async getAllPost() {
@@ -29,9 +31,6 @@ export class PostService {
         return posts;
     }
     async getPosts() {
-        // return await this.postRepo.find({
-        //     relations: ['likes', 'dislikes', 'comments']
-        // })
         const posts = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.likedBy', 'likedBy')
@@ -50,12 +49,6 @@ export class PostService {
     }
 
     async getPostById(postId: number) {
-        // return await this.postRepo.find({
-        //     relations: ['likes', 'dislikes', 'comments'],
-        //     where: {
-        //         id: postId
-        //     }
-        // })
         
         const post = await this.postRepo
             .createQueryBuilder('post')
@@ -137,11 +130,9 @@ export class PostService {
 
     async deletePost(user, postId: number) {
         const post = await this.getPostById(postId);
-        // console.log(user)
         if (!post) {
             throw new NotFoundException('post not found');
         }
-        // return user;
         if (post.author.id === user.userId) {
             return this.postRepo.softDelete(postId);
         }

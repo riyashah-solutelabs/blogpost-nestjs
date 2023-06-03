@@ -24,7 +24,6 @@ export class CommentService {
         comment.user = userData;
         comment.post = post;
         comment.createdBy = userData.name;
-        // post.comments.push(comment);
         
         return this.commentRepo.save(comment);
     }
@@ -40,8 +39,6 @@ export class CommentService {
                 id: commentId
             }
         })
-        // console.log(comment)
-        // console.log(post.comments.find((comment) => comment.id === commentId))
         if(!comment || !post.comments.find((comment) => comment.id === commentId)) {
             throw new NotFoundException('Comment Not Found')
         }

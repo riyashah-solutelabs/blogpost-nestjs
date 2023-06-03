@@ -14,7 +14,7 @@ export class JwtGuard extends AuthGuard('jwt') {
       if (request.url === Constants.BY_PASS_URLS[x]) return true;
     }
 
-    // AuthGuard('jwt') ma control pass krva
+    // to pass controle to AuthGuard('jwt') 
     return super.canActivate(context);
   }
 }

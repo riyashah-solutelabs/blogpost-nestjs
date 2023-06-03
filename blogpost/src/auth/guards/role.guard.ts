@@ -16,19 +16,14 @@ export class RolesGuard implements CanActivate {
       console
       const { role } = request.user;
       if (!roles) {
-        return true; // No roles specified, allow access
+        return true; 
       }
       const url = request.url;
 
-      // Add your bypass conditions here
       if (url.includes('/user/currentuser')) {
-        // Bypass the guard for the specified URL
         return true;
       }
-      // const user = await this.userService.findUserById(id);
-      // if(roles.includes(user.role)){
-      //     return true;
-      // }
+     
       return roles.includes(role);
     }
     return false;

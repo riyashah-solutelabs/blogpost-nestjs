@@ -17,14 +17,11 @@ import {
   }
   
   export class SerializeInterceptor implements NestInterceptor {
-    // UserDto hardcode nai rakhvu mate controller thi pass krayelu leva
     constructor(private dto: any) {}
   
     intercept(context: ExecutionContext, handler: CallHandler): Observable<any> {
-      //Run something before a request is handled by the request handler
       return handler.handle().pipe(
         map((data: any) => {
-          //Run something before the response is sent out
           return plainToClass(this.dto, data, {
             excludeExtraneousValues: true,
           });

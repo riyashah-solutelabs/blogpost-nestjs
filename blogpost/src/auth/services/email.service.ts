@@ -6,9 +6,7 @@ export class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    // Initialize the transporter with your email provider configuration
     this.transporter = nodemailer.createTransport({
-      // Configure your email provider settings here
       service: 'Gmail',
       auth: {
         user: process.env.EMAIL_ID,

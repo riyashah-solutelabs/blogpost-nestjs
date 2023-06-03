@@ -8,7 +8,6 @@ import { Roles } from '../../auth/decorator';
 
 @ApiTags('User')
 @ApiSecurity('JWT-Auth')
-// @UseGuards(JwtGuard)
 @Controller('user')
 export class UserController {
     constructor(private userService: UserService) {}
