@@ -3,22 +3,23 @@ import { JwtGuard, RolesGuard, SubscriptionGuard } from '../../auth/guards';
 import { GetUser, Roles } from '../../auth/decorator';
 import { CreateCommenttDto } from '../dto/create-comment.dto';
 import { CommentService } from '../services/comment.service';
+import { Constants } from '../../utils/constants';
 
 @UseGuards(JwtGuard, RolesGuard, SubscriptionGuard)
 @Controller('comment')
 export class CommentController {
     constructor(private commentService: CommentService) {}
 
-    @Roles('user')
+    @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post(':postId')
     addComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Body() comment: CreateCommenttDto ) {
         return this.commentService.addComment(user, postId, comment);
     }
 
-    @Roles('user')
+    @Roles(Constants.ROLES.NORMAL_ROLE, Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Delete('posts/:postId/comments/:commentId')
-    deleteComment(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
-        return this.commentService.deleteComment(userId, postId, commentId);
+    deleteComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
+        return this.commentService.deleteComment(user, postId, commentId);
     }
 
     @Roles('user')

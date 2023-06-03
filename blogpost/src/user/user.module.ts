@@ -5,13 +5,17 @@ import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from './repository/user.repo';
 import { PostModule } from '../post/post.module';
+import { SuperAdminService } from './services/superadmin.service';
+import { SuperAdminController } from './controllers/superadmin.controller';
+import { AdminService } from './services/admin.service';
+import { AdminController } from './controllers/admin.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]), forwardRef(() => PostModule)
   ],
-  controllers: [UserController],
-  providers: [UserService, UserRepository],
+  controllers: [UserController, AdminController, SuperAdminController],
+  providers: [UserService, UserRepository, AdminService, SuperAdminService],
   exports: [UserService, UserRepository]
 })
 export class UserModule {}

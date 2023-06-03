@@ -3,6 +3,7 @@ import { CreateCommenttDto } from '../dto/create-comment.dto';
 import { CommentRepository } from '../repository/comment.repo';
 import { UserService } from 'src/user/services/user.service';
 import { PostService } from './post.service';
+import { Constants } from 'src/utils/constants';
 
 @Injectable()
 export class CommentService {
@@ -23,11 +24,12 @@ export class CommentService {
         comment.user = userData;
         comment.post = post;
         comment.createdBy = userData.name;
+        // post.comments.push(comment);
         
         return this.commentRepo.save(comment);
     }
 
-    async deleteComment(userId, postId, commentId) {
+    async deleteComment(user, postId, commentId) {
         const post = await this.postService.getPostById(postId);
         if(!post){
             throw new NotFoundException('post not found')
@@ -38,11 +40,13 @@ export class CommentService {
                 id: commentId
             }
         })
-        if(!comment) {
+        // console.log(comment)
+        // console.log(post.comments.find((comment) => comment.id === commentId))
+        if(!comment || !post.comments.find((comment) => comment.id === commentId)) {
             throw new NotFoundException('Comment Not Found')
         }
 
-        if(comment.user.id === userId) {
+        if(comment.user.id === user.userId || user.role === Constants.ROLES.ADMIN_ROLE || user.role === Constants.ROLES.SUPERADMIN_ROLE) {
             return await this.commentRepo.delete(commentId)
         }else{
             throw new ForbiddenException('You are not allowed to delete this comment');

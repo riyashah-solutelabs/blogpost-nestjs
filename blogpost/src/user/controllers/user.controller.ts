@@ -1,11 +1,9 @@
-import { Controller, Get, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
-import { UserService } from '../services/user.service';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { GetUser } from '../../auth/decorator/get-user.decorator';
-import { JwtGuard, RolesGuard } from '../../auth/guards';
-import { Constants } from '../../utils/constants';
-import { Roles } from '../../auth/decorator';
+import { JwtGuard } from '../../auth/guards';
+import { UserService } from '../services/user.service';
 
-@UseGuards(JwtGuard, RolesGuard)
+@UseGuards(JwtGuard)
 @Controller('user')
 export class UserController {
     constructor(private userService: UserService) {}
@@ -16,16 +14,9 @@ export class UserController {
         return user;
     }
 
-    @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Get()
-    getUsers() {
-        return this.userService.getUsers()
-    }
-
-    @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
-    @Get()
-    getAllPosts() {
-        return this.userService.getAllPosts()
+    getAllUsers() {
+        return this.userService.getAllUsers();
     }
 
 }

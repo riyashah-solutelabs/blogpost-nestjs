@@ -11,6 +11,6 @@ import { CommentController } from './controllers/comment.controller';
   imports: [forwardRef(() => UserModule)],
   providers: [PostService, PostRepository, CommentRepository, CommentService],
   controllers: [PostController, CommentController],
-  exports: [PostRepository]
+  exports: [PostRepository, PostService]
 })
 export class PostModule {}

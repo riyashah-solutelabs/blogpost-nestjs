@@ -4,5 +4,5 @@ export const Constants = {
       SUPERADMIN_ROLE: 'superadmin',
       NORMAL_ROLE: 'user',
     },
-    BY_PASS_URLS: ['/auth/signup'],
+    // BY_PASS_URLS: ['/auth/signup', '/auth/signin', 'user/currentuser'],
   };

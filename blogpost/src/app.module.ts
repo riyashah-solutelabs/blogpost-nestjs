@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmConfigService } from './config/typeorm.config';
 import { PostModule } from './post/post.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { PostModule } from './post/post.module';
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
     }),
-    UserModule, AuthModule, PostModule],
+    UserModule, AuthModule, PostModule, SearchModule],
   controllers: [AppController],
   providers: [AppService],
 })

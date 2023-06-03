@@ -43,6 +43,9 @@ export class AuthService {
         if (!user) {
             throw new NotFoundException('user with this email does not exist');
         }
+        if (user.status === 'inactive') {
+            throw new NotFoundException('user is inactive');
+        }
         const [salt, storedHash] = user.password.split('.');
 
         const hash = (await scrypt(password, salt, 32)) as Buffer;

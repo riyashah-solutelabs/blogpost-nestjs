@@ -2,10 +2,6 @@ import { ConflictException, ForbiddenException, Injectable, NotFoundException, P
 import { PostRepository } from '../repository/post.repo';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UserService } from '../../user/services/user.service';
-import { Constants } from '../../utils/constants';
-import { User } from '../../user/entities/user.entity';
-import { CreateCommenttDto } from '../dto/create-comment.dto';
-import { CommentRepository } from '../repository/comment.repo';
 
 @Injectable()
 export class PostService {
@@ -20,6 +16,18 @@ export class PostService {
         return await this.postRepo.save(post);
     }
 
+    async getAllPost() {
+        return await this.postRepo.find();
+    }
+
+    async getPost() {
+        const posts = await this.postRepo
+            .createQueryBuilder('post')
+            .where('post.totalDisLikes < :dislikes', { dislikes: 1 })
+            .getMany();
+
+        return posts;
+    }
     async getPosts() {
         // return await this.postRepo.find({
         //     relations: ['likes', 'dislikes', 'comments']
@@ -48,13 +56,15 @@ export class PostService {
         //         id: postId
         //     }
         // })
+        
         const post = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.likedBy', 'likedBy')
             .leftJoinAndSelect('post.dislikedBy', 'dislikedBy')
             .leftJoinAndSelect('post.author', 'author')
-            .select(['post', 'likedBy', 'author.id', 'dislikedBy'])
-            .where({ id: postId })
+            .leftJoinAndSelect('post.comments', 'comments')
+            .select(['post', 'likedBy', 'author.id', 'dislikedBy', 'comments'])
+            .where('post.id = :id', { id: postId })
             .getOne();
 
         return post;
@@ -135,7 +145,7 @@ export class PostService {
         if (post.author.id === user.userId) {
             return this.postRepo.softDelete(postId);
         }
-        throw new ForbiddenException('You are not allowed to update this post');
+        throw new ForbiddenException('You are not allowed to delete this post');
     }
 
 }
