@@ -2,7 +2,7 @@ import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validat
 import { Constants } from "../../utils/constants";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class CreateUserDto{
+export class LoginUserDto{
     @ApiProperty({
         description: 'Enter your email id',
         example: 'john@gmail.com'
@@ -18,22 +18,4 @@ export class CreateUserDto{
     @IsString()
     @IsNotEmpty()
     password: string;
-
-    @ApiProperty({
-        description: 'Enter your name',
-        example: 'John'
-    })
-    @IsString()
-    @IsNotEmpty()
-    name: string;
-
-    @ApiProperty({
-        description: 'Enter role',
-        example: 'user',
-        enum: Constants.ROLES
-    })
-    @IsString()
-    @IsOptional()
-    @IsEnum(Constants.ROLES)
-    role: string;
 }

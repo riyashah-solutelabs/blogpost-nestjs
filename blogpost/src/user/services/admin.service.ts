@@ -80,14 +80,28 @@ export class AdminService {
     }
 
     async getPostByUserId(userId: number) {
-        return await this.postRepo.find({
-            relations: ['author'],
-            where: {
-                author: {
-                    id: userId
-                }
-            }
-        })
+        // const post = await this.postRepo.find({
+        //     relations: ['author'],
+        //     where: {
+        //         author: {
+        //             id: userId
+        //         }
+        //     }
+        // })
+        const posts = await this.postRepo
+            .createQueryBuilder('post')
+            .leftJoinAndSelect('post.author', 'author')
+            .leftJoinAndSelect('post.comments', 'comments')
+            .select(['post','author.id','comments.description', 'comments.id'])
+            .where('author.id = :id', { id: userId })
+            .getMany();
+        
+        return posts;
+        // console.log(post);
+        // if(!post) {
+        //     return 'No posts found';
+        // }
+        // return post;
     }
 
     async getPostById(postId: number) {
@@ -108,7 +122,7 @@ export class AdminService {
         if (!post) {
             throw new NotFoundException('post not found');
         }
-        if(post.totalDisLikes > 15) {
+        if(post.totalDisLikes > 1) {
             return this.postRepo.softDelete(postId);
         }
         throw new ForbiddenException('You are not allowed to delete this post');

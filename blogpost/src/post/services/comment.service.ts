@@ -46,7 +46,8 @@ export class CommentService {
             throw new NotFoundException('Comment Not Found')
         }
 
-        if(comment.user.id === user.userId || user.role === Constants.ROLES.ADMIN_ROLE || user.role === Constants.ROLES.SUPERADMIN_ROLE) {
+        console.log(post.author.id)
+        if(post.author.id === user.userId || comment.user.id === user.userId || user.role === Constants.ROLES.ADMIN_ROLE || user.role === Constants.ROLES.SUPERADMIN_ROLE) {
             return await this.commentRepo.delete(commentId)
         }else{
             throw new ForbiddenException('You are not allowed to delete this comment');

@@ -3,7 +3,7 @@ import MeiliSearch, { Index, SearchParams } from "meilisearch";
 import { Constants } from "src/utils/constants";
 
 @Injectable()
-export class SearchService{
+export class SearchService {
     private _client: MeiliSearch;
 
 
@@ -28,13 +28,21 @@ export class SearchService{
     //     const index = this.getMovieIndex();
     //     return await index.addDocuments(documents);
     // }
-    public async addDocumentsPost(documents){
+    public async addDocumentsPost(documents) {
         const index = this.getPostIndex();
         return await index.addDocuments(documents);
     }
-    public async addDocuments(documents){
+    public async addDocuments(documents) {
         const index = this.getUserIndex();
         return await index.addDocuments(documents);
+    }
+    public async DeleteUserDocuments() {
+        const index = this.getUserIndex();
+        return await index.deleteAllDocuments();
+    }
+    public async DeletePostDocuments() {
+        const index = this.getPostIndex();
+        return await index.deleteAllDocuments();
     }
 
     // public async search(text: string, searchParams?: SearchParams) {
@@ -44,9 +52,9 @@ export class SearchService{
     public async search(user: any, text: string, searchParams?: SearchParams) {
         const index = this.getPostIndex();
         const search = await index.search(text, searchParams);
-        if(user.role === Constants.ROLES.NORMAL_ROLE) {
+        if (user.role === Constants.ROLES.NORMAL_ROLE) {
             return search.hits.filter(post => post.totalDisLikes < 1)
-        }else{
+        } else {
             return search;
         }
     }
