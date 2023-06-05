@@ -1,12 +1,12 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserDto } from '../../dtos';
 import { UserRepository } from '../../user/repository/user.repo';
-import { User } from '../../user/entities/user.entity';
+import { User } from '../../entities';
 import { UserService } from '../../user/services/user.service';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { JwtService } from '@nestjs/jwt';
-import { UpdatePasswordDto } from '../dto/update-password.dto';
+import { LoginUserDto, UpdatePasswordDto } from '../../dtos';
 import { EmailService } from './email.service';
 
 const scrypt = promisify(_scrypt);
@@ -45,7 +45,7 @@ export class AuthService {
     return await this.userRepo.save(user);
   }
 
-  async signin(email: string, password: string) {
+  async signin(email: string, password: string): Promise<{ access_token: string; }>{
     const user = await this.userService.findByEmail(email);
     if (!user) {
       throw new NotFoundException('user with this email does not exist');
@@ -111,9 +111,7 @@ export class AuthService {
     }
     user.subscribed = true;
     await this.userRepo.save(user);
-    const token = this.generateToken(user);
     return {
-      token,
       message: 'Subscribed Successfully'
     };
   }

@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { Constants } from "../../utils/constants";
+import { Constants } from "../utils/constants";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateUserDto{

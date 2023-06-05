@@ -10,6 +10,11 @@ export class UserService {
     ) { }
 
     getAllUsers() {
+        // return this.userRepo.find({
+        //     where: {
+        //         role: Constants.ROLES.NORMAL_ROLE
+        //     }
+        // });
         return this.userRepo.find();
     }
 

@@ -1,18 +1,19 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException, Post } from '@nestjs/common';
 import { PostRepository } from '../repository/post.repo';
-import { CreatePostDto } from '../dto/create-post.dto';
-import { UserService } from '../../user/services/user.service';
+import { CreatePostDto, UpdatePostDto } from '../../dtos';
+// import { UserService } from '../../user/services/user.service';
+// import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class PostService {
     constructor(
         private postRepo: PostRepository,
-        private userService: UserService
+        // private userService: UserService
     ) { }
-    async createPost(userId: number, createpost: CreatePostDto) {
-        const user = await this.userService.findUserById(userId);
+    async createPost(userId, createpost: CreatePostDto) {
+        // const user = await this.userService.findUserById(userId);
         const post = await this.postRepo.create(createpost);
-        post.author = user;
+        post.author = userId;
         const savedPost = await this.postRepo.save(post);
         delete savedPost.author.password;
         return savedPost;
@@ -38,7 +39,7 @@ export class PostService {
             .leftJoinAndSelect('post.author', 'author')
             .leftJoinAndSelect('post.comments', 'comments')
             .select(['post', 'likedBy.id', 'author.id', 'dislikedBy.id', 'comments'])
-            .orderBy('post.createdAt', 'DESC') 
+            .orderBy('post.createdAt', 'DESC')
             .addOrderBy('post.totalLikes', 'DESC')
             .addOrderBy('comments', 'DESC')
             .addOrderBy('post.totalDisLikes', 'DESC')
@@ -49,7 +50,7 @@ export class PostService {
     }
 
     async getPostById(postId: number) {
-        
+
         const post = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.likedBy', 'likedBy')
@@ -63,61 +64,102 @@ export class PostService {
         return post;
     }
 
-    async postLike(userId: number, postId: number) {
-        const user = await this.userService.findUserById(userId);
+    // async postLike(userId: number, postId: number) {
+    //     // const user = await this.userService.findUserById(userId);
+    //     const user = await this.postRepo.manager.findOne(User, {
+    //         where: {
+    //             id: userId
+    //         }
+    //     });
+    //     const post = await this.getPostById(postId);
+    //     if (!post) {
+    //         throw new NotFoundException('post not found')
+    //     }
+
+    //     if (post.likedBy.find((likedUser) => likedUser.id === user.id)) {
+    //         throw new ConflictException('You have already liked this post.');
+    //     }
+    //     if (post.dislikedBy.find((dislikedUser) => dislikedUser.id === user.id)) {
+    //         post.dislikedBy = post.dislikedBy.filter((id) => {
+    //             return id !== user;
+    //         });
+    //         post.totalDisLikes -= 1;
+    //     }
+
+    //     post.totalLikes += 1;
+    //     post.likedBy.push(user);
+
+    //     const postlike = await this.postRepo.save(post);
+    //     console.log(postlike)
+
+    //     return {
+    //         message: 'You have liked post successfully'
+    //     }
+    // }
+    async postLike(user, postId: number) {
+        // const user = await this.userService.findUserById(userId);
+        // user.id = user.userId;
+        // delete user.userId;
+        const { userId, ...userData } = user;
+        // console.log(user)
         const post = await this.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found')
+            throw new NotFoundException('Post not found');
         }
 
-        if (post.likedBy.find((likedUser) => likedUser.id === user.id)) {
+        if (post.likedBy.find((likedUser) => likedUser.id === userId)) {
             throw new ConflictException('You have already liked this post.');
         }
-        if (post.dislikedBy.find((dislikedUser) => dislikedUser.id === user.id)) {
-            post.dislikedBy = post.dislikedBy.filter((userId) => {
-                return userId !== user;
-            });
+
+        if (post.dislikedBy.find((dislikedUser) => dislikedUser.id === userId)) {
+            post.dislikedBy = post.dislikedBy.filter((userData) => userData.id !== userId);
             post.totalDisLikes -= 1;
         }
 
         post.totalLikes += 1;
-        post.likedBy.push(user);
+        post.likedBy.push({ id: userId, ...userData});
 
-        await this.postRepo.save(post);
+        const updatedPost = await this.postRepo.save(post);
+        console.log(updatedPost);
 
         return {
-            message: 'You have liked post successfully'
-        }
+            message: 'You have liked the post successfully',
+        };
     }
 
 
-    async postDisLike(userId: number, postId: number) {
-        const user = await this.userService.findUserById(userId);
+    async postDisLike(user, postId: number) {
+        // const user = await this.userService.findUserById(userId);
+        // user.id = user.userId;
+        // delete user.userId;
+        const { userId, ...userData } = user;
+        // console.log(user.id)
         const post = await this.getPostById(postId);
         if (!post) {
             throw new NotFoundException('post not found')
         }
-        if (post.dislikedBy.find((dislikedUser) => dislikedUser.id === user.id)) {
+        if (post.dislikedBy.find((dislikedUser) => dislikedUser.id === userId)) {
             throw new ConflictException('You have already disliked this post.');
         }
-        if (post.likedBy.find((likedUser) => likedUser.id === user.id)) {
-            post.likedBy = post.likedBy.filter((userId) => {
-                return userId !== user;
+        if (post.likedBy.find((likedUser) => likedUser.id === userId)) {
+            post.likedBy = post.likedBy.filter((user) => {
+                return user.id !== userId;
             });
             post.totalLikes -= 1;
         }
 
         post.totalDisLikes += 1;
-        post.dislikedBy.push(user);
+        post.dislikedBy.push({ id: userId, ...userData});
 
-        await this.postRepo.save(post);
+        const postdis = await this.postRepo.save(post);
+        console.log(postdis)
 
         return {
             message: 'You have disliked post successfully'
         }
     }
 
-    async updatePost(userId: number, postId: number, postData: Partial<CreatePostDto>) {
+    async updatePost(userId: number, postId: number, postData: UpdatePostDto) {
         const post = await this.getPostById(postId);
         if (!post) {
             throw new NotFoundException('post not found');

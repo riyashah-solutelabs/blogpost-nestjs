@@ -9,7 +9,7 @@ import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkRes
 
 @ApiTags('Admin')
 @ApiSecurity('JWT-Auth')
-@UseGuards(RolesGuard, UserStatusGuard)
+// @UseGuards(RolesGuard, UserStatusGuard)
 @Controller('admin')
 export class AdminController {
     constructor(private adminService: AdminService) {}
@@ -39,7 +39,7 @@ export class AdminController {
     }
 
     @ApiOperation({
-        summary: 'reterive post'
+        summary: 'reterive posts by userid'
     })
     @ApiOkResponse({
         description: 'reterive post successfully'
@@ -54,7 +54,7 @@ export class AdminController {
     }
 
     @ApiOperation({
-        summary: 'reterive post'
+        summary: 'reterive post by post id'
     })
     @ApiOkResponse({
         description: 'reterive post successfully'

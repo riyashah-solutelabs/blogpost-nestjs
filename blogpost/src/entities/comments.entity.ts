@@ -1,4 +1,4 @@
-import { User } from "src/user/entities/user.entity";
+import { User } from "./";
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Post } from "./post.entity";
 

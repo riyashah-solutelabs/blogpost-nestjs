@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { Constants } from '../../utils/constants';
+import { Constants } from '../utils/constants';
 import { IsEmail, IsEnum, IsString } from 'class-validator';
 
 export class UserDto {

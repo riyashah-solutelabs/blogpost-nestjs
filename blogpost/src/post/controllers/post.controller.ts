@@ -1,14 +1,15 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { PostService } from '../services/post.service';
-import { CreatePostDto } from '../dto/create-post.dto';
+import { CreatePostDto, UpdatePostDto } from '../../dtos';
 import { JwtGuard, RolesGuard, SubscriptionGuard, UserStatusGuard } from '../../auth/guards';
 import { GetUser, Roles } from '../../auth/decorator';
 import { Constants } from '../../utils/constants';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { User } from '../../entities';
 
 @ApiTags('Post')
 @ApiSecurity('JWT-Auth')
-@UseGuards(RolesGuard, UserStatusGuard, SubscriptionGuard)
+// @UseGuards(RolesGuard, UserStatusGuard, SubscriptionGuard)
 @Controller('post')
 export class PostController {
     constructor(private postService: PostService) { }
@@ -49,8 +50,11 @@ export class PostController {
     @ApiConflictResponse({ description: 'you have already liked this post' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('likes/:postId')
-    likePost(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number) {
-        return this.postService.postLike(userId, postId)
+    // likePost(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number) {
+    //     return this.postService.postLike(userId, postId)
+    // }
+    likePost(@GetUser() user, @Param('postId', ParseIntPipe) postId: number) {
+        return this.postService.postLike(user, postId)
     }
 
     @ApiOperation({ summary: 'dislike post' })
@@ -61,8 +65,8 @@ export class PostController {
     @ApiConflictResponse({ description: 'you have already disliked this post' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('dislikes/:postId')
-    dislikePost(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number) {
-        return this.postService.postDisLike(userId, postId)
+    dislikePost(@GetUser() user: User, @Param('postId', ParseIntPipe) postId: number) {
+        return this.postService.postDisLike(user, postId)
     }
 
     @ApiOperation({ summary: 'update post' })
@@ -73,7 +77,7 @@ export class PostController {
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Patch('update/:postId')
     updatePost(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number,
-        @Body() post: Partial<CreatePostDto>
+        @Body() post: UpdatePostDto
     ) {
         return this.postService.updatePost(userId, postId, post);
     }

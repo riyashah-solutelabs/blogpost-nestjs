@@ -8,6 +8,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmConfigService } from './config/typeorm.config';
 import { PostModule } from './post/post.module';
 import { SearchModule } from './search/search.module';
+import { JwtGuard, RolesGuard, SubscriptionGuard, UserStatusGuard } from './auth/guards';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,6 +22,22 @@ import { SearchModule } from './search/search.module';
     }),
     UserModule, AuthModule, PostModule, SearchModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: JwtGuard,
+  },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: UserStatusGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: SubscriptionGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule { }

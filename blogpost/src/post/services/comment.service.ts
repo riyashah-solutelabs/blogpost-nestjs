@@ -1,7 +1,7 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCommenttDto } from '../dto/create-comment.dto';
+import { CreateCommenttDto } from '../../dtos';
 import { CommentRepository } from '../repository/comment.repo';
-import { UserService } from 'src/user/services/user.service';
+// import { UserService } from 'src/user/services/user.service';
 import { PostService } from './post.service';
 import { Constants } from 'src/utils/constants';
 
@@ -9,21 +9,21 @@ import { Constants } from 'src/utils/constants';
 export class CommentService {
     constructor(
         private commentRepo: CommentRepository,
-        private userService: UserService,
+        // private userService: UserService,
         private postService: PostService
     ) { }
 
     async addComment(user, postId: number, createcomment: CreateCommenttDto) {
-        const userData = await this.userService.findUserById(user.userId)
+        // const userData = await this.userService.findUserById(user.userId)
         const post = await this.postService.getPostById(postId);
-        if(!post || !userData) {
+        if(!post || !user) {
             throw new NotFoundException('not found');
         }
-        
         const comment = await this.commentRepo.create(createcomment);
-        comment.user = userData;
+        comment.user = user.userId;
         comment.post = post;
-        comment.createdBy = userData.name;
+        comment.createdBy = user.name;
+        console.log(comment)
         
         return this.commentRepo.save(comment);
     }
@@ -51,8 +51,9 @@ export class CommentService {
         }
     }
 
-    async likeComment(userId: number, postId: number, commentId: number) {
-        const user = await this.userService.findUserById(userId);
+    async likeComment(user, postId: number, commentId: number) {
+        // const user = await this.userService.findUserById(userId);
+        const { userId, ...userData } = user;
         const post = await this.postService.getPostById(postId);
         if(!post) {
             throw new NotFoundException('post not found');
@@ -67,19 +68,23 @@ export class CommentService {
             throw new NotFoundException('comment not found');
         }
 
-        if(comment.likedBy.find((likedUser) => likedUser.id === user.id)){
+        if(comment.likedBy.find((likedUser) => likedUser.id === userId)){
             throw new ConflictException('You have already liked this post.');
         }
-        if (comment.dislikedBy.find((dislikedUser) => dislikedUser.id === user.id)) {
-            comment.dislikedBy = comment.dislikedBy.filter((userId) => {
-              return userId !== user ;
+        if (comment.dislikedBy.find((dislikedUser) => dislikedUser.id === userId)) {
+            console.log("disssssssssssssssss")
+            comment.dislikedBy = comment.dislikedBy.filter((userData) => {
+                // console.log(id, user)
+              return userData.id !== userId ;
             });
+            console.log("dislikedBy",comment.dislikedBy)
             comment.totalDisLikes -= 1;
           }
          comment.totalLikes += 1;
-         comment.likedBy.push(user);
+         comment.likedBy.push({ id: userId, ...userData});
       
-          await this.commentRepo.save(comment);
+          const l =  await this.commentRepo.save(comment);
+          console.log(l)
 
           return {
             message: 'You have liked comment successfully'
@@ -87,8 +92,9 @@ export class CommentService {
 
     }
 
-    async dislikeComment(userId: number, postId: number, commentId: number) {
-        const user = await this.userService.findUserById(userId);
+    async dislikeComment(user, postId: number, commentId: number) {
+        // const user = await this.userService.findUserById(userId);
+        const { userId, ...userData } = user;
         const post = await this.postService.getPostById(postId);
         if(!post) {
             throw new NotFoundException('post not found');
@@ -103,18 +109,18 @@ export class CommentService {
             throw new NotFoundException('comment not found');
         }
         
-        if(comment.dislikedBy.find((likedUser) => likedUser.id === user.id)){
+        if(comment.dislikedBy.find((likedUser) => likedUser.id === userId)){
             throw new ConflictException('You have already disliked this post.');
         }
-        if (comment.likedBy.find((likedUser) => likedUser.id === user.id)) {
-            comment.likedBy = comment.likedBy.filter((userId) => {
-              return userId !== user ;
+        if (comment.likedBy.find((likedUser) => likedUser.id === userId)) {
+            comment.likedBy = comment.likedBy.filter((userData) => {
+              return userData.id !== userId ;
             });
             comment.totalLikes -= 1;
           }
 
          comment.totalDisLikes += 1;
-         comment.dislikedBy.push(user);
+         comment.dislikedBy.push({ id: userId, ...userData});
       
           await this.commentRepo.save(comment);
 

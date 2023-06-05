@@ -1,7 +1,7 @@
-import { Constants } from "../../utils/constants"
-import { BeforeInsert, BeforeUpdate, Column, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Post } from "../../post/entities/post.entity";
-import { Comment } from "../../post/entities/comments.entity";
+import { Constants } from "../utils/constants"
+import { BeforeInsert, BeforeUpdate, Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Post } from "./";
+import { Comment } from "./";
 
 @Entity()
 export class User {
@@ -49,6 +49,11 @@ export class User {
 
     @OneToMany(() => Post, post => post.dislikedBy)
     dislikedPosts: Post[];
+    // @ManyToMany(() => Post, post => post.likedBy)
+    // likedPosts: Post[];
+  
+    // @ManyToMany(() => Post, post => post.dislikedBy)
+    // dislikedPosts: Post[];
 
     @OneToMany(() => Comment, comment => comment.likedBy)
     likedComments: Comment[];

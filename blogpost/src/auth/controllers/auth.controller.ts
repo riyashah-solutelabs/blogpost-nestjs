@@ -1,15 +1,14 @@
 import { Body, Controller, HttpCode, HttpStatus, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { UserDto } from '../../user/dto/user.dto';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { UserDto } from '../../dtos';
+import { CreateUserDto } from '../../dtos';
 import { AuthService } from '../services/auth.service';
-import { User } from '../../user/entities/user.entity';
+import { User } from '../../entities';
 import { Serialize } from 'src/interceptors/serializeinterceptor';
 import { GetUser, Roles } from '../decorator';
 import { JwtGuard, RolesGuard, SubscriptionGuard, UserStatusGuard } from '../guards';
 import { Constants } from 'src/utils/constants';
-import { UpdatePasswordDto } from '../dto/update-password.dto';
+import { UpdatePasswordDto, LoginUserDto } from '../../dtos';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { LoginUserDto } from '../dto/login-user.dto';
 
 @ApiTags('Auth')
 @ApiSecurity('JWT-Auth')
@@ -55,7 +54,7 @@ export class AuthController {
     @ApiConflictResponse({ description: 'already have subscription' })
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
-    @UseGuards(RolesGuard)
+    // @UseGuards(RolesGuard)
     @Patch('subscribe')
     getSubscription(@GetUser('userId', ParseIntPipe) userId: number) {
         return this.authService.getSubscription(userId);
@@ -73,7 +72,7 @@ export class AuthController {
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
-    @UseGuards(RolesGuard, UserStatusGuard)
+    // @UseGuards(RolesGuard, UserStatusGuard)
     @Patch('/updatepassword')
     updatePassword(@GetUser() user, @Body() updatePassword: UpdatePasswordDto) {
         return this.authService.updatePassword(user, updatePassword);

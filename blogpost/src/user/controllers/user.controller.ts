@@ -31,7 +31,7 @@ export class UserController {
         description: 'users reterived successfully'
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
-    @UseGuards(RolesGuard)
+    // @UseGuards(RolesGuard)
     @Get()
     getAllUsers() {
         return this.userService.getAllUsers();

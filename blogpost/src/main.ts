@@ -1,12 +1,15 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { JwtGuard } from './auth/guards';
+// import { JwtGuard, RolesGuard, SubscriptionGuard, UserStatusGuard } from './auth/guards';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+// import { UserService } from './user/services/user.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalGuards(new JwtGuard());
+  // const reflector = app.get(Reflector);
+  // const userService = app.get(UserService);
+  // app.useGlobalGuards(new JwtGuard(), new RolesGuard(reflector), new UserStatusGuard(userService), new SubscriptionGuard(userService) );
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true
   }))

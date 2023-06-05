@@ -7,7 +7,7 @@ import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkRes
 
 @ApiTags('superadmin')
 @ApiSecurity('JWT-Auth')
-@UseGuards(RolesGuard)
+// @UseGuards(RolesGuard)
 @Controller('superadmin')
 export class SuperAdminController {
     constructor(private superadminService: SuperAdminService) { }

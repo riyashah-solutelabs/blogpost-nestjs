@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { SearchService } from "../services/search.service";
 import { UserService } from "../../user/services/user.service";
 import { PostService } from "../../post/services/post.service";
-import { SearchPostDto, SearchUserDto } from "../dto";
+import { SearchPostDto, SearchUserDto } from "../../dtos";
 import { GetUser } from "../../auth/decorator";
 import { JwtGuard, RolesGuard, SubscriptionGuard, UserStatusGuard } from "../../auth/guards";
 import { ApiSecurity, ApiTags } from "@nestjs/swagger";

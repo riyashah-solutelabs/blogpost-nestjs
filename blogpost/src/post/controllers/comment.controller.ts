@@ -1,14 +1,14 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtGuard, RolesGuard, SubscriptionGuard } from '../../auth/guards';
 import { GetUser, Roles } from '../../auth/decorator';
-import { CreateCommenttDto } from '../dto/create-comment.dto';
+import { CreateCommenttDto } from '../../dtos';
 import { CommentService } from '../services/comment.service';
 import { Constants } from '../../utils/constants';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
 @ApiTags('Comment')
 @ApiSecurity('JWT-Auth')
-@UseGuards(RolesGuard, SubscriptionGuard)
+// @UseGuards(RolesGuard, SubscriptionGuard)
 @Controller('comment')
 export class CommentController {
     constructor(private commentService: CommentService) {}
@@ -46,8 +46,8 @@ export class CommentController {
     })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('posts/:postId/comments/:commentId/like')
-    likeComment(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
-        return this.commentService.likeComment(userId, postId, commentId);
+    likeComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
+        return this.commentService.likeComment(user, postId, commentId);
     }
 
     @ApiOperation({ summary: 'dislike comment' })
@@ -60,7 +60,7 @@ export class CommentController {
     })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('posts/:postId/comments/:commentId/dislike')
-    dislikeComment(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
-        return this.commentService.dislikeComment(userId, postId, commentId);
+    dislikeComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
+        return this.commentService.dislikeComment(user, postId, commentId);
     }
 }
