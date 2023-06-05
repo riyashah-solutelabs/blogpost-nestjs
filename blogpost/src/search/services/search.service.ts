@@ -9,7 +9,7 @@ export class SearchService {
 
     constructor() {
         this._client = new MeiliSearch({
-            host: 'http://192.168.99.100:7800',
+            host: process.env.MEILISEARCH_URL,
         })
     }
 
