@@ -3,9 +3,10 @@ import { JwtGuard, RolesGuard, SubscriptionGuard } from '../../auth/guards';
 import { GetUser, Roles } from '../../auth/decorator';
 import { CreateCommenttDto } from '../../dtos';
 import { ReplyService } from '../services/reply.service';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiNotFoundResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { User } from 'src/entities';
 import { CreateReplyDto } from 'src/dtos/reply.dto';
+import { Constants } from 'src/utils/constants';
 
 @ApiTags('Reply')
 @ApiSecurity('JWT-Auth')
@@ -69,5 +70,33 @@ export class ReplyController {
     ) {
         const reply = await this.replyService.deleteCommentReply(user,postId, commentId, parentId);
         return reply;
+    }
+
+    @ApiOperation({ summary: 'like comment' })
+    @ApiCreatedResponse({
+        description: 'comment liked successfully'
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiNotFoundResponse({
+        description: 'comment/post not found'
+    })
+    @Roles(Constants.ROLES.NORMAL_ROLE)
+    @Post('posts/:postId/comments/:commentId/reply/:replyId/like')
+    likeCommentReply(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number, @Param('replyId', ParseIntPipe) replyId: number) {
+        return this.replyService.likeCommentReply(user, postId, commentId, replyId);
+    }
+
+    @ApiOperation({ summary: 'dislike comment' })
+    @ApiCreatedResponse({
+        description: 'comment disliked successfully'
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiNotFoundResponse({
+        description: 'comment/post not found'
+    })
+    @Roles(Constants.ROLES.NORMAL_ROLE)
+    @Post('posts/:postId/comments/:commentId/reply/:replyId/dislike')
+    dislikeCommentReply(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number, @Param('replyId', ParseIntPipe) replyId: number) {
+        return this.replyService.dislikeCommentReply(user, postId, commentId, replyId);
     }
 }

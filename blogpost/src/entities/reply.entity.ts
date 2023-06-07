@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from "./comments.entity";
 import { User } from "./user.entity";
 
@@ -39,5 +39,25 @@ export class Reply {
 
   @OneToMany(() => Reply, reply => reply.parentReply)
   parentReplies: Reply[];
+
+  @ManyToMany(() => User)
+  @JoinTable()
+  likedBy: User[];
+
+  @ManyToMany(() => User)
+  @JoinTable()
+  dislikedBy: User[];
+
+  @Column({
+    type: Number,
+    default: 0
+  })
+  totalLikes: number;
+
+  @Column({
+    type: Number,
+    default: 0
+  })
+  totalDisLikes: number;
 
 }

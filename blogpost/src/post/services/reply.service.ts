@@ -243,5 +243,121 @@ export class ReplyService {
     }
 
 
+    async likeCommentReply(user, postId: number, commentId: number, replyId: number) {
+        const { userId, ...userData } = user;
+        const post = await this.postRepo.findOne({
+            where: {
+                id: postId
+            }
+        });
+        if (!post) {
+            throw new NotFoundException('post not found');
+        }
+        const comment = await this.commentRepo.findOne({
+            relations: ['replies', 'replies.childReplies'],
+            where: {
+                id: commentId
+            }
+        });
+        console.log(comment)
+        const replyPost = comment.replies.find((reply) => reply.id == replyId);
+        if(!replyPost) {
+            const childreplyPost = comment.replies.find(reply => reply.childReplies.find((reply) => reply.id == replyId));
+            if (!childreplyPost) {
+                throw new NotFoundException('comment not found');
+            }
+        }
+        // console.log(!replyPost)
+        if (!comment) {
+            throw new NotFoundException('comment not found');
+        }
+        const reply = await this.replyRepository.findOne({
+            relations: ['likedBy', 'dislikedBy'],
+            where: {
+                id: replyId
+            }
+        })
+
+        if (reply.likedBy.find(likedByUser => likedByUser.id == userId)) {
+            throw new ConflictException('You have already liked this post.');
+        }
+        if (reply.dislikedBy.find((dislikedUser) => dislikedUser.id === userId)) {
+            reply.dislikedBy = reply.dislikedBy.filter((userData) => {
+                return userData.id !== userId;
+            });
+            console.log("dislikedBy", reply.dislikedBy)
+            reply.totalDisLikes -= 1;
+        }
+        reply.totalLikes += 1;
+        reply.likedBy.push({ id: userId, ...userData });
+
+        const l = await this.replyRepository.save(reply);
+        console.log(l)
+
+        return {
+            message: 'You have liked comment successfully'
+        }
+
+    }
+
+    async dislikeCommentReply(user, postId: number, commentId: number, replyId: number) {
+        const { userId, ...userData } = user;
+        const post = await this.postRepo.findOne({
+            where: {
+                id: postId
+            }
+        });
+        if (!post) {
+            throw new NotFoundException('post not found');
+        }
+        const comment = await this.commentRepo.findOne({
+            relations: ['replies', 'replies.childReplies'],
+            where: {
+                id: commentId
+            }
+        });
+        console.log(comment)
+        const replyPost = comment.replies.find((reply) => reply.id == replyId);
+        if(!replyPost) {
+            const childreplyPost = comment.replies.find(reply => reply.childReplies.find((reply) => reply.id == replyId));
+            if (!childreplyPost) {
+                throw new NotFoundException('comment not found');
+            }
+        }
+        // console.log(!replyPost)
+        if (!comment) {
+            throw new NotFoundException('comment not found');
+        }
+        const reply = await this.replyRepository.findOne({
+            relations: ['likedBy', 'dislikedBy'],
+            where: {
+                id: replyId
+            }
+        })
+
+        if (reply.dislikedBy.find(dislikedByUser => dislikedByUser.id == userId)) {
+            throw new ConflictException('You have already disliked this post.');
+        }
+        if (reply.likedBy.find((likedUser) => likedUser.id === userId)) {
+            reply.likedBy = reply.likedBy.filter((userData) => {
+                return userData.id !== userId;
+            });
+            reply.totalLikes -= 1;
+        }
+        reply.totalDisLikes += 1;
+        reply.dislikedBy.push({ id: userId, ...userData });
+
+        const l = await this.replyRepository.save(reply);
+        console.log(l)
+
+        return {
+            message: 'You have disliked comment successfully'
+        }
+
+    }
+
+
+
+
 
 }
