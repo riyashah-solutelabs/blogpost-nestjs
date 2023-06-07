@@ -9,7 +9,7 @@ export class SearchService {
 
     constructor() {
         this._client = new MeiliSearch({
-            host: 'http://192.168.99.100:7800',
+            host: process.env.MEILI_URL,
         })
     }
 
@@ -42,13 +42,20 @@ export class SearchService {
         const index = this.getPostIndex();
         const search = await index.search(text, searchParams);
         if (user.role === Constants.ROLES.NORMAL_ROLE) {
-            return search.hits.filter(post => post.totalDisLikes < 1)
+            return search.hits.filter(post => post.totalDisLikes < 15)
         } else {
             return search;
         }
     }
-    public async searchUser(name: string, searchParams?: SearchParams) {
+    public async searchUser(user: any, name: string, searchParams?: SearchParams) {
         const index = this.getUserIndex();
-        return await index.search(name, searchParams)
+        const search = await index.search(name, searchParams);
+        if (user.role === Constants.ROLES.NORMAL_ROLE) {
+            return search.hits.filter(user => user.role === Constants.ROLES.NORMAL_ROLE)
+        } else if (user.role === Constants.ROLES.ADMIN_ROLE) {
+            return search.hits.filter(user => user.role !== Constants.ROLES.SUPERADMIN_ROLE)
+        }else{
+            return search;
+        }
     }
 }

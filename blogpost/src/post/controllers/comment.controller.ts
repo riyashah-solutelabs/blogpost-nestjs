@@ -8,7 +8,6 @@ import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOpera
 
 @ApiTags('Comment')
 @ApiSecurity('JWT-Auth')
-// @UseGuards(RolesGuard, SubscriptionGuard)
 @Controller('comment')
 export class CommentController {
     constructor(private commentService: CommentService) {}

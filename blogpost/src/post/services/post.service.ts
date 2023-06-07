@@ -1,17 +1,14 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException, Post } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PostRepository } from '../repository/post.repo';
 import { CreatePostDto, UpdatePostDto } from '../../dtos';
-// import { UserService } from '../../user/services/user.service';
-// import { User } from 'src/user/entities/user.entity';
+import { Post } from 'src/entities';
 
 @Injectable()
 export class PostService {
     constructor(
         private postRepo: PostRepository,
-        // private userService: UserService
     ) { }
     async createPost(userId, createpost: CreatePostDto) {
-        // const user = await this.userService.findUserById(userId);
         const post = await this.postRepo.create(createpost);
         post.author = userId;
         const savedPost = await this.postRepo.save(post);
@@ -23,14 +20,6 @@ export class PostService {
         return await this.postRepo.find();
     }
 
-    async getPost() {
-        const posts = await this.postRepo
-            .createQueryBuilder('post')
-            .where('post.totalDisLikes < :dislikes', { dislikes: 1 })
-            .getMany();
-
-        return posts;
-    }
     async getPosts() {
         const posts = await this.postRepo
             .createQueryBuilder('post')
@@ -64,44 +53,8 @@ export class PostService {
         return post;
     }
 
-    // async postLike(userId: number, postId: number) {
-    //     // const user = await this.userService.findUserById(userId);
-    //     const user = await this.postRepo.manager.findOne(User, {
-    //         where: {
-    //             id: userId
-    //         }
-    //     });
-    //     const post = await this.getPostById(postId);
-    //     if (!post) {
-    //         throw new NotFoundException('post not found')
-    //     }
-
-    //     if (post.likedBy.find((likedUser) => likedUser.id === user.id)) {
-    //         throw new ConflictException('You have already liked this post.');
-    //     }
-    //     if (post.dislikedBy.find((dislikedUser) => dislikedUser.id === user.id)) {
-    //         post.dislikedBy = post.dislikedBy.filter((id) => {
-    //             return id !== user;
-    //         });
-    //         post.totalDisLikes -= 1;
-    //     }
-
-    //     post.totalLikes += 1;
-    //     post.likedBy.push(user);
-
-    //     const postlike = await this.postRepo.save(post);
-    //     console.log(postlike)
-
-    //     return {
-    //         message: 'You have liked post successfully'
-    //     }
-    // }
     async postLike(user, postId: number) {
-        // const user = await this.userService.findUserById(userId);
-        // user.id = user.userId;
-        // delete user.userId;
         const { userId, ...userData } = user;
-        // console.log(user)
         const post = await this.getPostById(postId);
         if (!post) {
             throw new NotFoundException('Post not found');
@@ -129,11 +82,7 @@ export class PostService {
 
 
     async postDisLike(user, postId: number) {
-        // const user = await this.userService.findUserById(userId);
-        // user.id = user.userId;
-        // delete user.userId;
         const { userId, ...userData } = user;
-        // console.log(user.id)
         const post = await this.getPostById(postId);
         if (!post) {
             throw new NotFoundException('post not found')
@@ -176,9 +125,13 @@ export class PostService {
             throw new NotFoundException('post not found');
         }
         if (post.author.id === user.userId) {
-            return this.postRepo.softDelete(postId);
+            return this.postRepo.delete(postId);
         }
         throw new ForbiddenException('You are not allowed to delete this post');
+    }
+
+    async searchByTitle(title: string): Promise<Post[]> {
+        return this.postRepo.findByTitle(title);
     }
 
 }

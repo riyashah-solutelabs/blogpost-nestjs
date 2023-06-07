@@ -19,19 +19,35 @@ export class AdminService {
     }
 
     async deleteUser(userId: number, user: any) {
-        if(user.role === Constants.ROLES.ADMIN_ROLE){
-            const getUser = await this.userRepo.findOne({
-                where: {
-                    id: userId
-                }
-            });
-            if(!getUser) {
-                throw new NotFoundException('user not found');
+        const getUser = await this.userRepo.findOne({
+            where: {
+                id: userId
             }
+        });
+        if(!getUser) {
+            throw new NotFoundException('user not found');
+        }
+        if(user.role === Constants.ROLES.ADMIN_ROLE){
             if(getUser.role === Constants.ROLES.SUPERADMIN_ROLE || getUser.role === Constants.ROLES.ADMIN_ROLE) {
                 throw new ForbiddenException('You can Not delete this user');
             }
         }
+        else if(user.role === Constants.ROLES.SUPERADMIN_ROLE) {
+            if(getUser.role === Constants.ROLES.SUPERADMIN_ROLE) {
+                throw new ForbiddenException('You can Not update status of this user');
+            }
+        }
+        const posts = await this.postRepo.find({
+            where: {
+                author: {
+                    id: userId
+                }
+            }
+        });
+        
+        await Promise.all(posts.map(async (post) => {
+            await this.postRepo.remove(post);
+        }));
         return await this.userRepo.softDelete(userId);
     }
 
@@ -41,14 +57,19 @@ export class AdminService {
                 id: userId
             }
         });
+        if(!getUser) {
+            throw new NotFoundException('user not found');
+        }
         if(user.role === Constants.ROLES.ADMIN_ROLE){
-            if(!getUser) {
-                throw new NotFoundException('user not found');
-            }
             if(getUser.role === Constants.ROLES.SUPERADMIN_ROLE || getUser.role === Constants.ROLES.ADMIN_ROLE) {
                 throw new ForbiddenException('You can Not update status of this user');
             }
     
+        }
+        else if(user.role === Constants.ROLES.SUPERADMIN_ROLE){
+            if(getUser.role === Constants.ROLES.SUPERADMIN_ROLE) {
+                throw new ForbiddenException('You can Not update status of this user');
+            }
         }
         if(getUser.status === 'active') {
             getUser.status = 'inactive'
@@ -109,7 +130,7 @@ export class AdminService {
         if (!post) {
             throw new NotFoundException('post not found');
         }
-        if(post.totalDisLikes > 1) {
+        if(post.totalDisLikes > 15) {
             return this.postRepo.softDelete(postId);
         }
         throw new ForbiddenException('You are not allowed to delete this post');

@@ -68,7 +68,7 @@ export class AdminController {
         return this.adminService.getPostById(postId)
     }
 
-    @ApiOperation({ summary: 'delete post' })
+    @ApiOperation({ summary: 'delete post only if totalDisLikes > 15' })
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @ApiNotFoundResponse({
         description: 'post not found'
@@ -95,7 +95,7 @@ export class AdminController {
     }
 
     @ApiOperation({
-        summary: 'update user status'
+        summary: 'update user status(active, inactive)'
     })
     @ApiCreatedResponse({
         description: 'user status updated successfully'

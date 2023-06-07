@@ -11,6 +11,7 @@ export class SubscriptionGuard implements CanActivate {
       if (request.url === Constants.BY_PASS_URLS_SUBSCRIBED[x]) return true;
     }
     const user = await this.userService.findUserById(request.user.userId);
+    console.log(user)
     const isSubscribed = user.subscribed;
     return isSubscribed;
   }

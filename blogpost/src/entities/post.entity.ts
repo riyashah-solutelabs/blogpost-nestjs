@@ -37,9 +37,6 @@ export class Post {
     })
     totalDisLikes: number;
 
-    @DeleteDateColumn({ nullable: true })
-    deletedAt: Date;
-
     @ManyToMany(() => User)
     @JoinTable()
     likedBy: User[];

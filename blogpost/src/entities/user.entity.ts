@@ -1,11 +1,10 @@
 import { Constants } from "../utils/constants"
-import { BeforeInsert, BeforeUpdate, Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeSoftRemove, BeforeUpdate, Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Post } from "./";
 import { Comment } from "./";
 
 @Entity()
 export class User {
-
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -49,11 +48,6 @@ export class User {
 
     @OneToMany(() => Post, post => post.dislikedBy)
     dislikedPosts: Post[];
-    // @ManyToMany(() => Post, post => post.likedBy)
-    // likedPosts: Post[];
-  
-    // @ManyToMany(() => Post, post => post.dislikedBy)
-    // dislikedPosts: Post[];
 
     @OneToMany(() => Comment, comment => comment.likedBy)
     likedComments: Comment[];
@@ -65,7 +59,9 @@ export class User {
     @BeforeInsert()
     updateSubsription() {
         if (this.role === Constants.ROLES.ADMIN_ROLE || this.role === Constants.ROLES.SUPERADMIN_ROLE) {
-            this.subscribed = true; // Set default value based on condition
+            this.subscribed = true;
         }
     }
+    
+
 }

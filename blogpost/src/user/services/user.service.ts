@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { UserRepository } from '../repository/user.repo';
 import { Constants } from '../../utils/constants';
 import { PostRepository } from '../../post/repository/post.repo';
+import { Equal, Not } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -10,11 +11,11 @@ export class UserService {
     ) { }
 
     getAllUsers() {
-        // return this.userRepo.find({
-        //     where: {
-        //         role: Constants.ROLES.NORMAL_ROLE
-        //     }
-        // });
+        return this.userRepo.find({
+            where: {
+                role: Not(Equal(Constants.ROLES.SUPERADMIN_ROLE))
+              }
+        });
         return this.userRepo.find();
     }
 
@@ -30,5 +31,9 @@ export class UserService {
                 id: id
             }
         })
+    }
+
+    searchUserByName(name: string) {
+        return this.userRepo.findUserByName(name)
     }
 }

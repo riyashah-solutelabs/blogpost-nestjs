@@ -48,8 +48,8 @@ export class SearchController {
     }
 
     @Post('/user')
-    public async searchUser(@Body() search: SearchUserDto) {
-        return await this.searchService.searchUser(search.name, {
+    public async searchUser(@GetUser() user, @Body() search: SearchUserDto) {
+        return await this.searchService.searchUser(user, search.name, {
             attributesToHighlight: ['*']
         })
     }

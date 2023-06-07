@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Query, UseGuards } from '@nestjs/common';
 import { JwtGuard, RolesGuard } from '../../auth/guards';
 import { Constants } from '../../utils/constants';
 import { GetUser, Roles } from '../../auth/decorator';
@@ -51,17 +51,25 @@ export class SuperAdminController {
     }
 
     @ApiOperation({
-        summary: 'update admin status'
+        summary: 'update admin status(active, inactive)'
     })
     @ApiCreatedResponse({
         description: 'admin status updated successfully'
     })
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Patch('/status/:userId')
-    changeAdminStatus(@GetUser() user, @Param('userId', ParseIntPipe) userId: number) {
-        return this.superadminService.changeAdminStatus(userId, user);
+    changeAdminStatus(@Param('userId', ParseIntPipe) userId: number) {
+        return this.superadminService.changeAdminStatus(userId);
     }
 
+    @ApiOperation({
+        summary: 'search admin by name'
+    })
+    @Roles(Constants.ROLES.SUPERADMIN_ROLE)
+    @Get()
+    searchUser(@Query('name') name: string) {
+        return this.superadminService.searchAdminByName(name)
+    }
 
 }
 

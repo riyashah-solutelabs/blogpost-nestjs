@@ -1,15 +1,13 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { PostService } from '../services/post.service';
 import { CreatePostDto, UpdatePostDto } from '../../dtos';
-import { JwtGuard, RolesGuard, SubscriptionGuard, UserStatusGuard } from '../../auth/guards';
 import { GetUser, Roles } from '../../auth/decorator';
 import { Constants } from '../../utils/constants';
-import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { User } from '../../entities';
 
 @ApiTags('Post')
 @ApiSecurity('JWT-Auth')
-// @UseGuards(RolesGuard, UserStatusGuard, SubscriptionGuard)
 @Controller('post')
 export class PostController {
     constructor(private postService: PostService) { }
@@ -50,9 +48,6 @@ export class PostController {
     @ApiConflictResponse({ description: 'you have already liked this post' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('likes/:postId')
-    // likePost(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number) {
-    //     return this.postService.postLike(userId, postId)
-    // }
     likePost(@GetUser() user, @Param('postId', ParseIntPipe) postId: number) {
         return this.postService.postLike(user, postId)
     }
@@ -93,5 +88,12 @@ export class PostController {
     @Delete(':postId')
     deletePost(@GetUser() user, @Param('postId', ParseIntPipe) postId: number) {
         return this.postService.deletePost(user, postId);
+    }
+
+    @ApiOperation({ summary: 'search post by title' })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @Roles(Constants.ROLES.NORMAL_ROLE)
+    async searchPostByTitle(@Query('title') title: string) {
+        return await this.postService.searchByTitle(title);
     }
 }

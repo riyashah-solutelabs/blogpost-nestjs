@@ -45,7 +45,7 @@ export class SuperAdminService {
         }
     }
 
-    async changeAdminStatus(userId: number, user: any) {
+    async changeAdminStatus(userId: number) {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId
@@ -71,5 +71,9 @@ export class SuperAdminService {
         return {
             message: `status is updates to ${getUser.status}`
         }
+    }
+
+    searchAdminByName(name: string) {
+        return this.userRepo.findAdminByName(name)
     }
 }
