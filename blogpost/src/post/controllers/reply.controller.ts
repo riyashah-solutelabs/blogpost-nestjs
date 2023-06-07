@@ -36,31 +36,6 @@ export class ReplyController {
         return reply;
     }
 
-    @Post('post/:postid/comment/:id/replies/:replyid/child/:childid')
-    async addReplyToChildReply(
-        @GetUser() user,
-        @Param('postid') postId: number,
-        @Param('id') commentId: number,
-        @Param('replyid') parentId: number,
-        @Param('childid', ParseIntPipe) childId: number,
-        @Body() createReply: CreateReplyDto,
-    ) {
-        const reply = await this.replyService.addChildReplyToChild(user,postId, commentId, parentId,childId, createReply);
-        return reply;
-    }
-
-    @Delete('post/:postid/comment/:id/replies/:replyid/child/:childid')
-    async DeleteReplyToChildReply(
-        @GetUser() user,
-        @Param('postid') postId: number,
-        @Param('id') commentId: number,
-        @Param('replyid') parentId: number,
-        @Param('childid', ParseIntPipe) childId: number
-    ) {
-        const reply = await this.replyService.deleteChildReply(user,postId, commentId, parentId,childId);
-        return reply;
-    }
-
     @Delete('post/:postid/comment/:id/replies/:replyid/')
     async deleteReplyToCommentReply(
         @GetUser() user,

@@ -46,160 +46,60 @@ export class ReplyService {
         return this.replyRepository.save(reply);
     }
 
-    async createReplyToChild(user, postId: number, commentId: number, parentId: number, createReplyDto: CreateReplyDto) {
+    async createReplyToChild(user, postId: number, commentId: number, parentId, createReplyDto: CreateReplyDto) {
         const post = await this.postRepo.findOne({
             where: {
                 id: postId
             }
         });
         if (!post) {
-            throw new NotFoundException('post not found')
+          throw new NotFoundException('Post not found');
         }
+      
         const comment = await this.commentRepo.findOne({
-            where: {
+            relations: ['replies'],
+            where:{
                 id: commentId
-            }
+            },
         });
-        if (!comment || !post.comments.find((comment) => comment.id == commentId)) {
-            throw new NotFoundException('Comment Not Found')
+        if (!comment) {
+          throw new NotFoundException('Comment not found');
         }
-        // First, retrieve the parent reply
-        const parentReply = await this.replyRepository.findOne({
-            where: {
-                id: parentId
-            }
-        });
-
-        if (!parentReply) {
-            throw new NotFoundException('Parent reply not found');
-        }
-
-        // console.log(parentReply);
-        // Create the new reply and associate it with the parent reply
-        const newReply = this.replyRepository.create({
-            ...createReplyDto,
-            parentReply,
-        });
-        newReply.createdBy = user.name;
-        newReply.user = user.userId;
-
-        // Save the new reply
-        const createdReply = await this.replyRepository.save(newReply);
-
-        return createdReply;
-    }
-
-    async addChildReplyToChild(
-        user,
-        postId: number,
-        commentId: number,
-        parentId: number,
-        childId,
-        createReplyDto: CreateReplyDto,
-    ): Promise<{ message: string; }> {
-
-        const post = await this.postRepo.findOne({
-            where: {
-                id: postId
-            }
-        });
-        if (!post) {
-            throw new NotFoundException('post not found')
-        }
-        const comment = await this.commentRepo.findOne({
-            where: {
-                id: commentId
-            }
-        });
-        if (!comment || !post.comments.find((comment) => comment.id == commentId)) {
-            throw new NotFoundException('Comment Not Found')
-        }
-        // First, retrieve the parent reply
-        const parentReply = await this.replyRepository.findOne({
+      
+        let parentReply: Reply;
+      
+        if (parentId) {
+          parentReply = await this.replyRepository.findOne({
             relations: ['childReplies'],
             where: {
                 id: parentId
-            }
-        });
-
-        if (!parentReply || !parentReply.childReplies.find((comment) => comment.id == childId)) {
-            throw new NotFoundException('child reply not found');
-        }
-        // return parentReply;
-
-        // Create the new reply and associate it with the parent reply
-        const newReply = this.replyRepository.create({
-            ...createReplyDto,
-            parentReply,
-        });
-        newReply.createdBy = user.name;
-        newReply.user = user.userId;
-        newReply.childReply = childId;
-
-        // // Save the new reply
-        await this.replyRepository.save(newReply);
-
-        return {
-            message: 'reply added'
-        };
-
-
-    }
-
-    async deleteChildReply(user, postId: number, commentId: number, replyId: number, childReplyId: number): Promise<void> {
-
-        const post = await this.postRepo.findOne({
-            where: {
-                id: postId
-            }
-        });
-        if (!post) {
-            throw new NotFoundException('post not found')
-        }
-        const comment = await this.commentRepo.findOne({
-            where: {
-                id: commentId
-            }
-        });
-        if (!comment || !post.comments.find((comment) => comment.id == commentId)) {
-            throw new NotFoundException('Comment Not Found')
-        }
-
-        // Find the parent reply
-        const parentReply = await this.replyRepository.findOne({
-            relations: ['childReplies', 'childReplies.user', 'user'],
-            where: {
-                id: replyId
-            }
-        });
-
-        if (!parentReply) {
+            },
+          });
+      
+          if (!parentReply) {
             throw new NotFoundException('Parent reply not found');
+          }
         }
-
-        // Find the child reply to delete
-        const childReplyIndex = parentReply.childReplies.findIndex(
-            (reply) => reply.id === childReplyId,
-        );
-
-        if (childReplyIndex === -1) {
-            throw new NotFoundException('Child reply not found');
+      
+        const newReply = this.replyRepository.create({
+          ...createReplyDto,
+          createdBy: user.name,
+          user: user.userId,
+          comment,
+          parentReply,
+        });
+      
+        if (parentReply) {
+          parentReply.childReplies.push(newReply);
+          await this.replyRepository.save(parentReply);
         }
-    
-        const valid = parentReply.childReplies[childReplyIndex].user.id == user.userId;
-        if (parentReply.user.id == user.userId || valid || user.role === Constants.ROLES.ADMIN_ROLE || user.role === Constants.ROLES.SUPERADMIN_ROLE) {
-            // Remove the child reply from the parent reply's childReplies array
-            parentReply.childReplies.splice(childReplyIndex, 1);
-
-            // Save the parent reply to update the childReplies array
-            await this.replyRepository.save(parentReply);
-
-            // Delete the child reply from the database
-            await this.replyRepository.delete(childReplyId);
-        } else {
-            throw new ForbiddenException('You are not allowed to delete this comment');
-        }
+      
+        const createdReply = await this.replyRepository.save(newReply);
+      
+        return createdReply;
     }
+
+
     async deleteCommentReply(user, postId: number, commentId: number, replyId: number): Promise<void> {
 
         const post = await this.postRepo.findOne({

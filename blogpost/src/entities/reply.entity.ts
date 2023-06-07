@@ -32,14 +32,6 @@ export class Reply {
   @OneToMany(() => Reply, reply => reply.parentReply)
   childReplies: Reply[];
 
-  @ManyToOne(() => Reply, reply => reply.parentReplies, {
-    onDelete: 'CASCADE',
-  })
-  childReply: Reply;
-
-  @OneToMany(() => Reply, reply => reply.parentReply)
-  parentReplies: Reply[];
-
   @ManyToMany(() => User)
   @JoinTable()
   likedBy: User[];

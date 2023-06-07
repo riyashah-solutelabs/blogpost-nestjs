@@ -28,8 +28,16 @@ export class PostService {
             .leftJoinAndSelect('post.author', 'author')
             .leftJoinAndSelect('post.comments', 'comments')
             .leftJoinAndSelect('comments.replies', 'replies')
-            .leftJoinAndSelect('replies.childReplies', 'parentReply')
-            .select(['post', 'likedBy.id', 'author.id', 'dislikedBy.id', 'comments', 'replies', 'parentReply'])
+            .leftJoinAndSelect('replies.childReplies', 'nestedReplies')
+            .select([
+                'post',
+                'likedBy.id',
+                'author.id',
+                'dislikedBy.id',
+                'comments',
+                'replies',
+                'nestedReplies'
+            ])
             .orderBy('post.createdAt', 'DESC')
             .addOrderBy('post.totalLikes', 'DESC')
             .addOrderBy('comments', 'DESC')
@@ -38,7 +46,24 @@ export class PostService {
             .getMany();
 
         return posts;
-        return await this.postRepo.find();
+        // const posts = await this.postRepo
+        //     .createQueryBuilder('post')
+        //     .leftJoinAndSelect('post.likedBy', 'likedBy')
+        //     .leftJoinAndSelect('post.dislikedBy', 'dislikedBy')
+        //     .leftJoinAndSelect('post.author', 'author')
+        //     .leftJoinAndSelect('post.comments', 'comments')
+        //     .leftJoinAndSelect('comments.replies', 'replies')
+        //     .leftJoinAndSelect('replies.childReplies', 'parentReply')
+        //     .select(['post', 'likedBy.id', 'author.id', 'dislikedBy.id', 'comments', 'replies', 'parentReply'])
+        //     .orderBy('post.createdAt', 'DESC')
+        //     .addOrderBy('post.totalLikes', 'DESC')
+        //     .addOrderBy('comments', 'DESC')
+        //     .addOrderBy('post.totalDisLikes', 'DESC')
+        //     .where('post.totalDisLikes < :dislikes', { dislikes: 15 })
+        //     .getMany();
+
+        // return posts;
+        // return await this.postRepo.find();
     }
 
     async getPostById(postId: number) {
@@ -73,7 +98,7 @@ export class PostService {
         }
 
         post.totalLikes += 1;
-        post.likedBy.push({ id: userId, ...userData});
+        post.likedBy.push({ id: userId, ...userData });
 
         const updatedPost = await this.postRepo.save(post);
         console.log(updatedPost);
@@ -101,7 +126,7 @@ export class PostService {
         }
 
         post.totalDisLikes += 1;
-        post.dislikedBy.push({ id: userId, ...userData});
+        post.dislikedBy.push({ id: userId, ...userData });
 
         const postdis = await this.postRepo.save(post);
         console.log(postdis)
