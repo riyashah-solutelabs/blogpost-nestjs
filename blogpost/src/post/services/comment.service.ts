@@ -13,7 +13,7 @@ export class CommentService {
 
     async addComment(user, postId: number, createcomment: CreateCommenttDto) {
         const post = await this.postService.getPostById(postId);
-        if (!post || !user) {
+        if (!post) {
             throw new NotFoundException('not found');
         }
         const comment = await this.commentRepo.create(createcomment);

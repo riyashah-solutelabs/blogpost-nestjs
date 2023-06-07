@@ -1,6 +1,7 @@
 import { User } from "./";
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Post } from "./post.entity";
+import { Reply } from "./reply.entity";
 
 @Entity()
 export class Comment {
@@ -26,6 +27,11 @@ export class Comment {
     onDelete: 'CASCADE'
   })
   post: Post;
+
+  @OneToMany(() => Reply, reply => reply.comment, {
+    eager: true
+  })
+  replies: Reply[];
 
   @ManyToMany(() => User)
   @JoinTable()

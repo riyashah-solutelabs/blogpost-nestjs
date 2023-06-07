@@ -27,7 +27,9 @@ export class PostService {
             .leftJoinAndSelect('post.dislikedBy', 'dislikedBy')
             .leftJoinAndSelect('post.author', 'author')
             .leftJoinAndSelect('post.comments', 'comments')
-            .select(['post', 'likedBy.id', 'author.id', 'dislikedBy.id', 'comments'])
+            .leftJoinAndSelect('comments.replies', 'replies')
+            .leftJoinAndSelect('replies.childReplies', 'parentReply')
+            .select(['post', 'likedBy.id', 'author.id', 'dislikedBy.id', 'comments', 'replies', 'parentReply'])
             .orderBy('post.createdAt', 'DESC')
             .addOrderBy('post.totalLikes', 'DESC')
             .addOrderBy('comments', 'DESC')
@@ -36,6 +38,7 @@ export class PostService {
             .getMany();
 
         return posts;
+        return await this.postRepo.find();
     }
 
     async getPostById(postId: number) {

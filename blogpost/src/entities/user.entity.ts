@@ -2,6 +2,7 @@ import { Constants } from "../utils/constants"
 import { BeforeInsert, BeforeSoftRemove, BeforeUpdate, Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Post } from "./";
 import { Comment } from "./";
+import { Reply } from "./reply.entity";
 
 @Entity()
 export class User {
@@ -42,6 +43,9 @@ export class User {
 
     @OneToMany(() => Comment, comment => comment.user)
     comments: Comment[];
+
+    @OneToMany(() => Reply, reply => reply.user)
+    reply: Reply[];
 
     @OneToMany(() => Post, post => post.likedBy)
     likedPosts: Post[];
