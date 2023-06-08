@@ -33,7 +33,7 @@ export class ReplyService {
                 id: commentId
             }
         });
-        if (!comment || !post.comments.find((comment) => comment.id == commentId)) {
+        if (!comment || !post.comments.find((comment) => comment.id === commentId)) {
             throw new NotFoundException('Comment Not Found')
         }
 
@@ -46,7 +46,7 @@ export class ReplyService {
         return this.replyRepository.save(reply);
     }
 
-    async createReplyToChild(user, postId: number, commentId: number, parentId, createReplyDto: CreateReplyDto) {
+    async createReplyToChild(user, postId: number, commentId: number, parentId: number, createReplyDto: CreateReplyDto) {
         const post = await this.postRepo.findOne({
             where: {
                 id: postId
@@ -88,6 +88,8 @@ export class ReplyService {
           comment,
           parentReply,
         });
+
+        console.log(newReply)
       
         if (parentReply) {
           parentReply.childReplies.push(newReply);

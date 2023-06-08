@@ -3,7 +3,7 @@ import { JwtGuard, RolesGuard, SubscriptionGuard } from '../../auth/guards';
 import { GetUser, Roles } from '../../auth/decorator';
 import { CreateCommenttDto } from '../../dtos';
 import { ReplyService } from '../services/reply.service';
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { User } from 'src/entities';
 import { CreateReplyDto } from 'src/dtos/reply.dto';
 import { Constants } from 'src/utils/constants';
@@ -13,35 +13,56 @@ import { Constants } from 'src/utils/constants';
 @Controller('reply')
 export class ReplyController {
     constructor(private replyService: ReplyService) { }
+
+    @ApiOperation({ summary: 'add comment reply' })
+    @ApiCreatedResponse({
+        description: 'comment added successfully'
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('post/:postid/comment/:id/replies')
     async addReply(
         @GetUser() user,
-        @Param('postid') postId: number,
-        @Param('id') commentId: number,
+        @Param('postid', ParseIntPipe) postId: number,
+        @Param('id', ParseIntPipe) commentId: number,
         @Body() createReply: CreateReplyDto,
     ) {
         const reply = await this.replyService.addReplyToComment(user,postId, commentId, createReply);
         return reply;
     }
 
+
+    @ApiOperation({ summary: 'add reply' })
+    @ApiCreatedResponse({
+        description: 'comment added successfully'
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('post/:postid/comment/:id/replies/:replyid')
     async createReply(
         @GetUser() user,
-        @Param('postid') postId: number,
-        @Param('id') commentId: number,
-        @Param('replyid') parentId: number,
+        @Param('postid', ParseIntPipe) postId: number,
+        @Param('id', ParseIntPipe) commentId: number,
+        @Param('replyid', ParseIntPipe) parentId: number,
         @Body() createReply: CreateReplyDto,
     ) {
         const reply = await this.replyService.createReplyToChild(user,postId, commentId, parentId, createReply);
         return reply;
     }
 
+    @ApiOperation({ summary: 'delete comment' })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiNotFoundResponse({
+        description: 'comment not found'
+    })
+    @ApiNoContentResponse({ description: 'comment deleted successfully' })
+    @HttpCode(204)
     @Delete('post/:postid/comment/:id/replies/:replyid/')
     async deleteReplyToCommentReply(
         @GetUser() user,
-        @Param('postid') postId: number,
-        @Param('id') commentId: number,
-        @Param('replyid') parentId: number,
+        @Param('postid', ParseIntPipe) postId: number,
+        @Param('id', ParseIntPipe) commentId: number,
+        @Param('replyid', ParseIntPipe) parentId: number,
     ) {
         const reply = await this.replyService.deleteCommentReply(user,postId, commentId, parentId);
         return reply;

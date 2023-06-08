@@ -1,11 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import MeiliSearch, { Index, SearchParams } from "meilisearch";
-import { Constants } from "src/utils/constants";
+import { Constants } from "../../utils/constants";
 
 @Injectable()
 export class SearchService {
     private _client: MeiliSearch;
-
 
     constructor() {
         this._client = new MeiliSearch({

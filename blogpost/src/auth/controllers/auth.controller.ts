@@ -1,11 +1,10 @@
-import { Body, Controller, HttpCode, HttpStatus, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { UserDto } from '../../dtos';
 import { CreateUserDto } from '../../dtos';
 import { AuthService } from '../services/auth.service';
 import { User } from '../../entities';
 import { Serialize } from 'src/interceptors/serializeinterceptor';
 import { GetUser, Roles } from '../decorator';
-import { JwtGuard, RolesGuard, SubscriptionGuard, UserStatusGuard } from '../guards';
 import { Constants } from 'src/utils/constants';
 import { UpdatePasswordDto, LoginUserDto } from '../../dtos';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';

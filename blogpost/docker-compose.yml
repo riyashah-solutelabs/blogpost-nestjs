@@ -8,13 +8,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: dockerBlogPost
-  test-db:
-    image: postgres:15
+    
+  search:
+    image: getmeili/meilisearch:v1.1
     ports:
-      - 5435:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: dockerBlogPostTest
+      - 7900:7700
 
-#run sql shell - host-192.168.99.100 ,port-5435, password-123
+

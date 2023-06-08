@@ -28,6 +28,7 @@ export class PostService {
             .leftJoinAndSelect('post.author', 'author')
             .leftJoinAndSelect('post.comments', 'comments')
             .leftJoinAndSelect('comments.replies', 'replies')
+            .leftJoinAndSelect('replies.parentReply', 'parentReply')
             .leftJoinAndSelect('replies.childReplies', 'nestedReplies')
             .select([
                 'post',
@@ -36,6 +37,7 @@ export class PostService {
                 'dislikedBy.id',
                 'comments',
                 'replies',
+                'parentReply',
                 'nestedReplies'
             ])
             .orderBy('post.createdAt', 'DESC')
