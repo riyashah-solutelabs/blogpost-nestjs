@@ -1,5 +1,6 @@
 export * from './login-user.dto';
 export * from './update-password.dto';
+export * from './reset-password.dto';
 export * from './create-comment.dto';
 export * from './create-post.dto';
 export * from './update-post.dto';
@@ -7,3 +8,4 @@ export * from './search-post.dto';
 export * from './search-user.dto';
 export * from './create-user.dto';
 export * from './user.dto';
+export * from './forget-password.dto';

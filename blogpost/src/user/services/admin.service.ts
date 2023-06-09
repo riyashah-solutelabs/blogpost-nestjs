@@ -2,6 +2,8 @@ import { ConflictException, ForbiddenException, Injectable, NotFoundException } 
 import { UserRepository } from '../repository/user.repo';
 import { Constants } from '../../utils/constants';
 import { PostRepository } from '../../post/repository/post.repo';
+import { MessageResponseDto, PostResponseDto, UserResponseDto } from '../../response';
+import { ErrorMessage } from 'src/utils/errorMessage';
 
 @Injectable()
 export class AdminService {
@@ -10,7 +12,7 @@ export class AdminService {
         private postRepo: PostRepository
     ) { }
 
-    async getUsers() {
+    async getUsers(): Promise<UserResponseDto[]> {
         return this.userRepo.find({
             where: {
                 role: Constants.ROLES.NORMAL_ROLE
@@ -18,23 +20,23 @@ export class AdminService {
         })
     }
 
-    async deleteUser(userId: number, user: any) {
+    async deleteUser(userId: number, user: any): Promise<MessageResponseDto> {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId
             }
         });
-        if(!getUser) {
-            throw new NotFoundException('user not found');
+        if (!getUser) {
+            throw new NotFoundException(ErrorMessage.NOT_FOUND);
         }
-        if(user.role === Constants.ROLES.ADMIN_ROLE){
-            if(getUser.role === Constants.ROLES.SUPERADMIN_ROLE || getUser.role === Constants.ROLES.ADMIN_ROLE) {
-                throw new ForbiddenException('You can Not delete this user');
+        if (user.role === Constants.ROLES.ADMIN_ROLE) {
+            if (getUser.role === Constants.ROLES.SUPERADMIN_ROLE || getUser.role === Constants.ROLES.ADMIN_ROLE) {
+                throw new ForbiddenException(ErrorMessage.NOT_ALLOWED);
             }
         }
-        else if(user.role === Constants.ROLES.SUPERADMIN_ROLE) {
-            if(getUser.role === Constants.ROLES.SUPERADMIN_ROLE) {
-                throw new ForbiddenException('You can Not update status of this user');
+        else if (user.role === Constants.ROLES.SUPERADMIN_ROLE) {
+            if (getUser.role === Constants.ROLES.SUPERADMIN_ROLE) {
+                throw new ForbiddenException(ErrorMessage.NOT_ALLOWED);
             }
         }
         const posts = await this.postRepo.find({
@@ -44,36 +46,39 @@ export class AdminService {
                 }
             }
         });
-        
+
         await Promise.all(posts.map(async (post) => {
             await this.postRepo.remove(post);
         }));
-        return await this.userRepo.softDelete(userId);
+        await this.userRepo.softDelete(userId);
+        return {
+            message: 'user deleted successfully'
+        }
     }
 
-    async changeUserStatus(userId: number, user: any) {
+    async changeUserStatus(userId: number, user: any): Promise<MessageResponseDto> {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId
             }
         });
-        if(!getUser) {
-            throw new NotFoundException('user not found');
+        if (!getUser) {
+            throw new NotFoundException(ErrorMessage.NOT_FOUND);
         }
-        if(user.role === Constants.ROLES.ADMIN_ROLE){
-            if(getUser.role === Constants.ROLES.SUPERADMIN_ROLE || getUser.role === Constants.ROLES.ADMIN_ROLE) {
-                throw new ForbiddenException('You can Not update status of this user');
+        if (user.role === Constants.ROLES.ADMIN_ROLE) {
+            if (getUser.role === Constants.ROLES.SUPERADMIN_ROLE || getUser.role === Constants.ROLES.ADMIN_ROLE) {
+                throw new ForbiddenException(ErrorMessage.NOT_ALLOWED);
             }
-    
+
         }
-        else if(user.role === Constants.ROLES.SUPERADMIN_ROLE){
-            if(getUser.role === Constants.ROLES.SUPERADMIN_ROLE) {
-                throw new ForbiddenException('You can Not update status of this user');
+        else if (user.role === Constants.ROLES.SUPERADMIN_ROLE) {
+            if (getUser.role === Constants.ROLES.SUPERADMIN_ROLE) {
+                throw new ForbiddenException(ErrorMessage.NOT_ALLOWED);
             }
         }
-        if(getUser.status === 'active') {
+        if (getUser.status === 'active') {
             getUser.status = 'inactive'
-        }else{
+        } else {
             getUser.status = 'active';
         }
 
@@ -83,7 +88,7 @@ export class AdminService {
         }
     }
 
-    async getAllPosts() {
+    async getAllPosts(): Promise<PostResponseDto[]> {
         const posts = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.likedBy', 'likedBy')
@@ -100,38 +105,41 @@ export class AdminService {
         return posts;
     }
 
-    async getPostByUserId(userId: number) {
+    async getPostByUserId(userId: number): Promise<PostResponseDto[]> {
         const posts = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.author', 'author')
             .leftJoinAndSelect('post.comments', 'comments')
-            .select(['post','author.id','comments.description', 'comments.id'])
+            .select(['post', 'author.id', 'comments.description', 'comments.id'])
             .where('author.id = :id', { id: userId })
             .getMany();
-        
+
         return posts;
     }
 
-    async getPostById(postId: number) {
+    async getPostById(postId: number): Promise<PostResponseDto> {
         const post = await this.postRepo
-        .createQueryBuilder('post')
-        .leftJoinAndSelect('post.likedBy', 'likedBy')
-        .leftJoinAndSelect('post.dislikedBy', 'dislikedBy')
-        .leftJoinAndSelect('post.author', 'author')
-        .select(['post', 'likedBy.name', 'dislikedBy.name', 'author.id'])
-        .where('post.id = :id', { id: postId })
-        .getOne();
+            .createQueryBuilder('post')
+            .leftJoinAndSelect('post.likedBy', 'likedBy')
+            .leftJoinAndSelect('post.dislikedBy', 'dislikedBy')
+            .leftJoinAndSelect('post.author', 'author')
+            .select(['post', 'likedBy.name', 'dislikedBy.name', 'author.id'])
+            .where('post.id = :id', { id: postId })
+            .getOne();
 
         return post;
     }
 
-    async adminDeletePost(postId: number) {
+    async adminDeletePost(postId: number): Promise<MessageResponseDto> {
         const post = await this.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found');
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
         }
-        if(post.totalDisLikes > 15) {
-            return this.postRepo.softDelete(postId);
+        if (post.totalDisLikes > 15) {
+            await this.postRepo.softDelete(postId);
+            return {
+                message: 'admin is deleted successfully'
+            }
         }
         throw new ForbiddenException('You are not allowed to delete this post');
     }

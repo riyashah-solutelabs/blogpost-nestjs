@@ -2,7 +2,9 @@ import { ConflictException, ForbiddenException, Injectable, NotFoundException } 
 import { CreateCommenttDto } from '../../dtos';
 import { CommentRepository } from '../repository/comment.repo';
 import { PostService } from './post.service';
-import { Constants } from 'src/utils/constants';
+import { Constants } from '../../utils/constants';
+import { CommentResponseDto, MessageResponseDto } from '../../response';
+import { ErrorMessage } from 'src/utils/errorMessage';
 
 @Injectable()
 export class CommentService {
@@ -11,10 +13,10 @@ export class CommentService {
         private postService: PostService
     ) { }
 
-    async addComment(user, postId: number, createcomment: CreateCommenttDto) {
+    async addComment(user, postId: number, createcomment: CreateCommenttDto): Promise<CommentResponseDto> {
         const post = await this.postService.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('not found');
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
         }
         const comment = await this.commentRepo.create(createcomment);
         comment.user = user.userId;
@@ -25,10 +27,10 @@ export class CommentService {
         return this.commentRepo.save(comment);
     }
 
-    async deleteComment(user, postId, commentId) {
+    async deleteComment(user, postId, commentId): Promise<MessageResponseDto> {
         const post = await this.postService.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found')
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND)
         }
         const comment = await this.commentRepo.findOne({
             relations: ['user'],
@@ -37,22 +39,25 @@ export class CommentService {
             }
         })
         if (!comment || !post.comments.find((comment) => comment.id === commentId)) {
-            throw new NotFoundException('Comment Not Found')
+            throw new NotFoundException(ErrorMessage.COMMENT_NOT_FOUND)
         }
 
         console.log(post.author.id)
         if (post.author.id === user.userId || comment.user.id === user.userId || user.role === Constants.ROLES.ADMIN_ROLE || user.role === Constants.ROLES.SUPERADMIN_ROLE) {
-            return await this.commentRepo.delete(commentId)
+            await this.commentRepo.delete(commentId)
+            return {
+                message: 'comment deleted successfully!'
+            }
         } else {
             throw new ForbiddenException('You are not allowed to delete this comment');
         }
     }
 
-    async likeComment(user, postId: number, commentId: number) {
+    async likeComment(user, postId: number, commentId: number): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.postService.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found');
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
         }
         const comment = await this.commentRepo.findOne({
             relations: ['likedBy', 'dislikedBy'],
@@ -61,17 +66,16 @@ export class CommentService {
             }
         });
         if (!comment) {
-            throw new NotFoundException('comment not found');
+            throw new NotFoundException(ErrorMessage.COMMENT_NOT_FOUND);
         }
 
         if (comment.likedBy.find((likedUser) => likedUser.id === userId)) {
-            throw new ConflictException('You have already liked this post.');
+            throw new ConflictException(ErrorMessage.LIKE_CONFLICT);
         }
         if (comment.dislikedBy.find((dislikedUser) => dislikedUser.id === userId)) {
             comment.dislikedBy = comment.dislikedBy.filter((userData) => {
                 return userData.id !== userId;
             });
-            console.log("dislikedBy", comment.dislikedBy)
             comment.totalDisLikes -= 1;
         }
         comment.totalLikes += 1;
@@ -86,11 +90,11 @@ export class CommentService {
 
     }
 
-    async dislikeComment(user, postId: number, commentId: number) {
+    async dislikeComment(user, postId: number, commentId: number): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.postService.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found');
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
         }
         const comment = await this.commentRepo.findOne({
             relations: ['likedBy', 'dislikedBy'],
@@ -99,11 +103,11 @@ export class CommentService {
             }
         });
         if (!comment) {
-            throw new NotFoundException('comment not found');
+            throw new NotFoundException(ErrorMessage.COMMENT_NOT_FOUND);
         }
 
         if (comment.dislikedBy.find((likedUser) => likedUser.id === userId)) {
-            throw new ConflictException('You have already disliked this post.');
+            throw new ConflictException(ErrorMessage.DISLIKE_CONFLICT);
         }
         if (comment.likedBy.find((likedUser) => likedUser.id === userId)) {
             comment.likedBy = comment.likedBy.filter((userData) => {

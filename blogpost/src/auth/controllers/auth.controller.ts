@@ -1,13 +1,14 @@
-import { Body, Controller, ParseIntPipe, Patch, Post } from '@nestjs/common';
-import { UserDto } from '../../dtos';
+import { Body, Controller, Get, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { ForgotPasswordDto, ResetPasswordDto, UserDto } from '../../dtos';
 import { CreateUserDto } from '../../dtos';
 import { AuthService } from '../services/auth.service';
 import { User } from '../../entities';
 import { Serialize } from 'src/interceptors/serializeinterceptor';
-import { GetUser, Roles } from '../decorator';
+import { GetUser, Roles } from '../../decorator';
 import { Constants } from 'src/utils/constants';
 import { UpdatePasswordDto, LoginUserDto } from '../../dtos';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { MessageResponseDto, TokenResponseDto, UserResponseDto } from 'src/response';
 
 @ApiTags('Auth')
 @ApiSecurity('JWT-Auth')
@@ -28,7 +29,7 @@ export class AuthController {
     @ApiConflictResponse({ description: 'User already exists' })
     @Serialize(UserDto)
     @Post('/signup')
-    createUser(@Body() createuserdto: CreateUserDto): Promise<User> {
+    createUser(@Body() createuserdto: CreateUserDto) {
         return this.authService.signup(createuserdto);
     }
 
@@ -43,7 +44,7 @@ export class AuthController {
         description: 'cannot signin. Try Again'
     })
     @Post('/signin')
-    signin(@Body() user: LoginUserDto): Promise<any> {
+    signin(@Body() user: LoginUserDto): Promise<TokenResponseDto> {
         return this.authService.signin(user.email, user.password)
     }
 
@@ -55,7 +56,7 @@ export class AuthController {
     @Roles(Constants.ROLES.NORMAL_ROLE)
     // @UseGuards(RolesGuard)
     @Patch('subscribe')
-    getSubscription(@GetUser('userId', ParseIntPipe) userId: number) {
+    getSubscription(@GetUser('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
         return this.authService.getSubscription(userId);
     }
 
@@ -73,7 +74,28 @@ export class AuthController {
     @Roles(Constants.ROLES.NORMAL_ROLE)
     // @UseGuards(RolesGuard, UserStatusGuard)
     @Patch('/updatepassword')
-    updatePassword(@GetUser() user, @Body() updatePassword: UpdatePasswordDto) {
+    updatePassword(@GetUser() user, @Body() updatePassword: UpdatePasswordDto): Promise<MessageResponseDto> {
         return this.authService.updatePassword(user, updatePassword);
     }
+
+    @ApiOperation({
+        summary: 'forget password'
+    })
+    @ApiCreatedResponse({
+        description: 'forget password response',
+        type: User
+    })
+    @ApiBadRequestResponse({
+        description: 'Try Again'
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @Post('forgot-password')
+    async forgotPassword(@GetUser() user, @Body() forgotPasswordDto: ForgotPasswordDto): Promise<MessageResponseDto> {
+        return this.authService.forgetPassword(user, forgotPasswordDto)
+    }
+
+    @Post('reset-password')
+  async resetPassword(@GetUser() user,@Body() resetPasswordDto: ResetPasswordDto): Promise<MessageResponseDto> {
+    return this.authService.resetPassword(user, resetPasswordDto)
+  }
 }

@@ -1,9 +1,10 @@
 import { Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Query, UseGuards } from '@nestjs/common';
 import { JwtGuard, RolesGuard } from '../../auth/guards';
 import { Constants } from '../../utils/constants';
-import { GetUser, Roles } from '../../auth/decorator';
+import { GetUser, Roles } from '../../decorator';
 import { SuperAdminService } from '../services/superadmin.service';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { MessageResponseDto, UserResponseDto } from 'src/response';
 
 @ApiTags('superadmin')
 @ApiSecurity('JWT-Auth')
@@ -20,7 +21,7 @@ export class SuperAdminController {
     })
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Get('/admins')
-    GetAdmin() {
+    GetAdmin(): Promise<UserResponseDto[]> {
         return this.superadminService.GetAdmin();
     }
 
@@ -33,7 +34,7 @@ export class SuperAdminController {
     @HttpCode(204)
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Delete('/admin/:userId')
-    DeleteAdmin(@Param('userId', ParseIntPipe) userId: number) {
+    DeleteAdmin(@Param('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
         return this.superadminService.DeleteAdmin(userId);
     }
 
@@ -46,7 +47,7 @@ export class SuperAdminController {
     @HttpCode(204)
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Delete('/post/:postId')
-    DeleteAllPost(@Param('postId', ParseIntPipe) postId: number) {
+    DeleteAllPost(@Param('postId', ParseIntPipe) postId: number): Promise<MessageResponseDto> {
         return this.superadminService.DeleteAllPost(postId);
     }
 
@@ -58,7 +59,7 @@ export class SuperAdminController {
     })
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Patch('/status/:userId')
-    changeAdminStatus(@Param('userId', ParseIntPipe) userId: number) {
+    changeAdminStatus(@Param('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
         return this.superadminService.changeAdminStatus(userId);
     }
 
@@ -67,7 +68,7 @@ export class SuperAdminController {
     })
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Get()
-    searchUser(@Query('name') name: string) {
+    searchUser(@Query('name') name: string): Promise<UserResponseDto[]> {
         return this.superadminService.searchAdminByName(name)
     }
 

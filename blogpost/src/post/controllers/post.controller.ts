@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { PostService } from '../services/post.service';
 import { CreatePostDto, UpdatePostDto } from '../../dtos';
-import { GetUser, Roles } from '../../auth/decorator';
+import { GetUser, Roles } from '../../decorator';
 import { Constants } from '../../utils/constants';
 import { ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { User } from '../../entities';
+import { MessageResponseDto, PostResponseDto } from 'src/response';
 
 @ApiTags('Post')
 @ApiSecurity('JWT-Auth')
@@ -27,7 +28,7 @@ export class PostController {
     @ApiOperation({ summary: 'Get all posts' })
     @ApiOkResponse({ description: 'posts retrieved successfully', type: CreatePostDto })
     @Get()
-    getPosts() {
+    getPosts(): Promise<PostResponseDto[]> {
         return this.postService.getPosts()
     }
 
@@ -35,7 +36,7 @@ export class PostController {
     @ApiOperation({ summary: 'Get posts by id' })
     @ApiOkResponse({ description: 'post retrieved successfully', type: CreatePostDto })
     @Get(':postId')
-    getById(@Param('postId', ParseIntPipe) postId: number) {
+    getById(@Param('postId', ParseIntPipe) postId: number): Promise<PostResponseDto> {
         console.log(typeof postId)
         return this.postService.getPostById(postId)
     }
@@ -48,7 +49,7 @@ export class PostController {
     @ApiConflictResponse({ description: 'you have already liked this post' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('likes/:postId')
-    likePost(@GetUser() user, @Param('postId', ParseIntPipe) postId: number) {
+    likePost(@GetUser() user, @Param('postId', ParseIntPipe) postId: number): Promise<MessageResponseDto> {
         return this.postService.postLike(user, postId)
     }
 
@@ -60,7 +61,7 @@ export class PostController {
     @ApiConflictResponse({ description: 'you have already disliked this post' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('dislikes/:postId')
-    dislikePost(@GetUser() user: User, @Param('postId', ParseIntPipe) postId: number) {
+    dislikePost(@GetUser() user: User, @Param('postId', ParseIntPipe) postId: number): Promise<MessageResponseDto> {
         return this.postService.postDisLike(user, postId)
     }
 
@@ -73,7 +74,7 @@ export class PostController {
     @Patch('update/:postId')
     updatePost(@GetUser('userId', ParseIntPipe) userId: number, @Param('postId', ParseIntPipe) postId: number,
         @Body() post: UpdatePostDto
-    ) {
+    ): Promise<PostResponseDto> {
         return this.postService.updatePost(userId, postId, post);
     }
 
@@ -86,14 +87,14 @@ export class PostController {
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @HttpCode(204)
     @Delete(':postId')
-    deletePost(@GetUser() user, @Param('postId', ParseIntPipe) postId: number) {
+    deletePost(@GetUser() user, @Param('postId', ParseIntPipe) postId: number): Promise<MessageResponseDto> {
         return this.postService.deletePost(user, postId);
     }
 
     @ApiOperation({ summary: 'search post by title' })
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
-    async searchPostByTitle(@Query('title') title: string) {
+    async searchPostByTitle(@Query('title') title: string): Promise<PostResponseDto[]> {
         return await this.postService.searchByTitle(title);
     }
 }

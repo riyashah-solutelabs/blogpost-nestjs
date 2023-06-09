@@ -3,6 +3,8 @@ import { UserRepository } from '../repository/user.repo';
 import { Constants } from '../../utils/constants';
 import { PostRepository } from '../../post/repository/post.repo';
 import { AdminService } from './admin.service';
+import { MessageResponseDto, UserResponseDto } from '../../response';
+import { ErrorMessage } from 'src/utils/errorMessage';
 
 @Injectable()
 export class SuperAdminService {
@@ -12,7 +14,7 @@ export class SuperAdminService {
         private postRepo: PostRepository
     ) { }
 
-    async GetAdmin() {
+    async GetAdmin(): Promise<UserResponseDto[]> {
         const admin = await this.userRepo.find({
             where: {
                 role: Constants.ROLES.ADMIN_ROLE
@@ -21,41 +23,47 @@ export class SuperAdminService {
         return admin;
     }
 
-    async DeleteAllPost(postId: number) {
+    async DeleteAllPost(postId: number): Promise<MessageResponseDto> {
         const post = await this.adminService.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found');
+            throw new NotFoundException(ErrorMessage.NOT_FOUND);
         }
-        return this.postRepo.softDelete(postId);
+        await this.postRepo.softDelete(postId);
+        return {
+            message: 'post is deleted successfully'
+        }
     }
 
-    async DeleteAdmin(userId: number) {
+    async DeleteAdmin(userId: number): Promise<MessageResponseDto> {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId
             }
         });
         if (!getUser) {
-            throw new NotFoundException('admin not found');
+            throw new NotFoundException(ErrorMessage.NOT_FOUND);
         }
         if (getUser.role === Constants.ROLES.ADMIN_ROLE) {
-            return await this.userRepo.softDelete(userId);
+            await this.userRepo.softDelete(userId);
+            return {
+                message: 'admin deleted successfully'
+            }
         } else {
-            throw new NotFoundException('admin not found');
+            throw new NotFoundException(ErrorMessage.NOT_FOUND);
         }
     }
 
-    async changeAdminStatus(userId: number) {
+    async changeAdminStatus(userId: number): Promise<MessageResponseDto> {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId
             }
         });
         if (!getUser) {
-            throw new NotFoundException('user not found');
+            throw new NotFoundException(ErrorMessage.NOT_FOUND);
         }
         if (getUser.role === Constants.ROLES.SUPERADMIN_ROLE) {
-            throw new ForbiddenException('You can Not update status of this user');
+            throw new ForbiddenException(ErrorMessage.NOT_ALLOWED);
         }
         if (getUser.role === Constants.ROLES.ADMIN_ROLE) {
             if (getUser.status === 'active') {
@@ -64,7 +72,7 @@ export class SuperAdminService {
                 getUser.status = 'active';
             }
         }else{
-            throw new NotFoundException('admin not found');
+            throw new NotFoundException(ErrorMessage.NOT_FOUND);
         }
 
         await this.userRepo.save(getUser);
@@ -73,7 +81,7 @@ export class SuperAdminService {
         }
     }
 
-    searchAdminByName(name: string) {
+    searchAdminByName(name: string): Promise<UserResponseDto[]> {
         return this.userRepo.findAdminByName(name)
     }
 }

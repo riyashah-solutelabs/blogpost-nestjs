@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtGuard, RolesGuard, SubscriptionGuard } from '../../auth/guards';
-import { GetUser, Roles } from '../../auth/decorator';
+import { GetUser, Roles } from '../../decorator';
 import { CreateCommenttDto } from '../../dtos';
 import { CommentService } from '../services/comment.service';
 import { Constants } from '../../utils/constants';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { CommentResponseDto, MessageResponseDto } from 'src/response';
 
 @ApiTags('Comment')
 @ApiSecurity('JWT-Auth')
@@ -19,7 +20,7 @@ export class CommentController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post(':postId')
-    addComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Body() comment: CreateCommenttDto ) {
+    addComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Body() comment: CreateCommenttDto ): Promise<CommentResponseDto> {
         return this.commentService.addComment(user, postId, comment);
     }
 
@@ -31,7 +32,7 @@ export class CommentController {
     @ApiNoContentResponse({ description: 'comment deleted successfully' })
     @HttpCode(204)
     @Delete('posts/:postId/comments/:commentId')
-    deleteComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
+    deleteComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number): Promise<MessageResponseDto> {
         return this.commentService.deleteComment(user, postId, commentId);
     }
 
@@ -45,7 +46,7 @@ export class CommentController {
     })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('posts/:postId/comments/:commentId/like')
-    likeComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
+    likeComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number): Promise<MessageResponseDto> {
         return this.commentService.likeComment(user, postId, commentId);
     }
 
@@ -59,7 +60,7 @@ export class CommentController {
     })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('posts/:postId/comments/:commentId/dislike')
-    dislikeComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number) {
+    dislikeComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number): Promise<MessageResponseDto> {
         return this.commentService.dislikeComment(user, postId, commentId);
     }
 }

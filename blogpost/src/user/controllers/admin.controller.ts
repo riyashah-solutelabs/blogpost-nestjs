@@ -1,11 +1,12 @@
 import { Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
-import { GetUser } from '../../auth/decorator/get-user.decorator';
+import { GetUser } from '../../decorator/get-user.decorator';
 import { JwtGuard, RolesGuard } from '../../auth/guards';
 import { Constants } from '../../utils/constants';
-import { Roles } from '../../auth/decorator';
+import { Roles } from '../../decorator';
 import { UserStatusGuard } from '../../auth/guards/user-status.guard';
 import { AdminService } from '../services/admin.service';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { MessageResponseDto, PostResponseDto, UserResponseDto } from 'src/response';
 
 @ApiTags('Admin')
 @ApiSecurity('JWT-Auth')
@@ -22,7 +23,7 @@ export class AdminController {
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Get()
-    getUsers() {
+    getUsers(): Promise<UserResponseDto[]> {
         return this.adminService.getUsers()
     }
 
@@ -34,7 +35,7 @@ export class AdminController {
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Get('/posts')
-    getAllPosts() {
+    getAllPosts(): Promise<PostResponseDto[]> {
         return this.adminService.getAllPosts()
     }
 
@@ -49,7 +50,7 @@ export class AdminController {
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Get('/:userId/posts')
-    getPostByUserId(@Param('userId', ParseIntPipe) userId: number) {
+    getPostByUserId(@Param('userId', ParseIntPipe) userId: number): Promise<PostResponseDto[]> {
         return this.adminService.getPostByUserId(userId)
     }
 
@@ -64,7 +65,7 @@ export class AdminController {
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Get('/posts/:postId')
-    getPostById(@Param('postId', ParseIntPipe) postId: number) {
+    getPostById(@Param('postId', ParseIntPipe) postId: number): Promise<PostResponseDto> {
         return this.adminService.getPostById(postId)
     }
 
@@ -77,7 +78,7 @@ export class AdminController {
     @HttpCode(204)
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Delete('/deletepost/:postId')
-    adminDeletePost(@Param('postId', ParseIntPipe) postId: number) {
+    adminDeletePost(@Param('postId', ParseIntPipe) postId: number): Promise<MessageResponseDto> {
         return this.adminService.adminDeletePost(postId);
     }
 
@@ -90,7 +91,7 @@ export class AdminController {
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @HttpCode(204)
     @Delete('/user/:userId')
-    DeleteUsers(@GetUser() user, @Param('userId', ParseIntPipe) userId: number) {
+    DeleteUsers(@GetUser() user, @Param('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
         return this.adminService.deleteUser(userId, user);
     }
 
@@ -102,7 +103,7 @@ export class AdminController {
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Patch('/userstatus/:userId')
-    changeUserStatus(@GetUser() user, @Param('userId', ParseIntPipe) userId: number) {
+    changeUserStatus(@GetUser() user, @Param('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
         return this.adminService.changeUserStatus(userId, user);
     }
 

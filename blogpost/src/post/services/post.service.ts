@@ -2,13 +2,15 @@ import { ConflictException, ForbiddenException, Injectable, NotFoundException } 
 import { PostRepository } from '../repository/post.repo';
 import { CreatePostDto, UpdatePostDto } from '../../dtos';
 import { Post } from 'src/entities';
+import { PostResponseDto, MessageResponseDto } from '../../response';
+import { ErrorMessage } from 'src/utils/errorMessage';
 
 @Injectable()
 export class PostService {
     constructor(
         private postRepo: PostRepository,
     ) { }
-    async createPost(userId, createpost: CreatePostDto) {
+    async createPost(userId, createpost: CreatePostDto): Promise<PostResponseDto> {
         const post = await this.postRepo.create(createpost);
         post.author = userId;
         const savedPost = await this.postRepo.save(post);
@@ -16,11 +18,11 @@ export class PostService {
         return savedPost;
     }
 
-    async getAllPost() {
+    async getAllPost(): Promise<PostResponseDto[]> {
         return await this.postRepo.find();
     }
 
-    async getPosts() {
+    async getPosts(): Promise<PostResponseDto[]> {
         const posts = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.likedBy', 'likedBy')
@@ -48,27 +50,9 @@ export class PostService {
             .getMany();
 
         return posts;
-        // const posts = await this.postRepo
-        //     .createQueryBuilder('post')
-        //     .leftJoinAndSelect('post.likedBy', 'likedBy')
-        //     .leftJoinAndSelect('post.dislikedBy', 'dislikedBy')
-        //     .leftJoinAndSelect('post.author', 'author')
-        //     .leftJoinAndSelect('post.comments', 'comments')
-        //     .leftJoinAndSelect('comments.replies', 'replies')
-        //     .leftJoinAndSelect('replies.childReplies', 'parentReply')
-        //     .select(['post', 'likedBy.id', 'author.id', 'dislikedBy.id', 'comments', 'replies', 'parentReply'])
-        //     .orderBy('post.createdAt', 'DESC')
-        //     .addOrderBy('post.totalLikes', 'DESC')
-        //     .addOrderBy('comments', 'DESC')
-        //     .addOrderBy('post.totalDisLikes', 'DESC')
-        //     .where('post.totalDisLikes < :dislikes', { dislikes: 15 })
-        //     .getMany();
-
-        // return posts;
-        // return await this.postRepo.find();
     }
 
-    async getPostById(postId: number) {
+    async getPostById(postId: number): Promise<PostResponseDto> {
 
         const post = await this.postRepo
             .createQueryBuilder('post')
@@ -83,15 +67,15 @@ export class PostService {
         return post;
     }
 
-    async postLike(user, postId: number) {
+    async postLike(user, postId: number): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('Post not found');
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
         }
 
         if (post.likedBy.find((likedUser) => likedUser.id === userId)) {
-            throw new ConflictException('You have already liked this post.');
+            throw new ConflictException(ErrorMessage.LIKE_CONFLICT);
         }
 
         if (post.dislikedBy.find((dislikedUser) => dislikedUser.id === userId)) {
@@ -111,14 +95,14 @@ export class PostService {
     }
 
 
-    async postDisLike(user, postId: number) {
+    async postDisLike(user, postId: number): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found')
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND)
         }
         if (post.dislikedBy.find((dislikedUser) => dislikedUser.id === userId)) {
-            throw new ConflictException('You have already disliked this post.');
+            throw new ConflictException(ErrorMessage.DISLIKE_CONFLICT);
         }
         if (post.likedBy.find((likedUser) => likedUser.id === userId)) {
             post.likedBy = post.likedBy.filter((user) => {
@@ -138,29 +122,34 @@ export class PostService {
         }
     }
 
-    async updatePost(userId: number, postId: number, postData: UpdatePostDto) {
+    async updatePost(userId: number, postId: number, postData: UpdatePostDto): Promise<PostResponseDto> {
         const post = await this.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found');
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
         }
         if (post.author.id === userId) {
-            return this.postRepo.update(postId, postData);
+            await this.postRepo.update(postId, postData);
+            const updatedPost = await this.getPostById(postId);
+            return updatedPost;
         }
         throw new ForbiddenException('You are not allowed to update this post');
     }
 
-    async deletePost(user, postId: number) {
+    async deletePost(user, postId: number): Promise<MessageResponseDto> {
         const post = await this.getPostById(postId);
         if (!post) {
-            throw new NotFoundException('post not found');
+            throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
         }
         if (post.author.id === user.userId) {
-            return this.postRepo.delete(postId);
+            await this.postRepo.delete(postId);
+            return {
+                message: 'post deleted successfully!!'
+            }
         }
         throw new ForbiddenException('You are not allowed to delete this post');
     }
 
-    async searchByTitle(title: string): Promise<Post[]> {
+    async searchByTitle(title: string): Promise<PostResponseDto[]> {
         return this.postRepo.findByTitle(title);
     }
 

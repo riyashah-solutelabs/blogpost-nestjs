@@ -1,8 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repo';
 import { Constants } from '../../utils/constants';
-import { PostRepository } from '../../post/repository/post.repo';
 import { Equal, Not } from 'typeorm';
+import { UserResponseDto } from '../../response';
 
 @Injectable()
 export class UserService {
@@ -10,7 +10,7 @@ export class UserService {
     constructor(private userRepo: UserRepository,
     ) { }
 
-    getAllUsers() {
+    getAllUsers(): Promise<UserResponseDto[]> {
         return this.userRepo.find({
             where: {
                 role: Not(Equal(Constants.ROLES.SUPERADMIN_ROLE))
@@ -19,13 +19,19 @@ export class UserService {
         return this.userRepo.find();
     }
 
-    findByEmail(email: string) {
+    findByEmail(email: string): Promise<UserResponseDto> {
         return this.userRepo.findOne({
             where: { email: email }
         })
     }
 
-    findUserById(id: number) {
+    findByToken(token: string): Promise<UserResponseDto> {
+        return this.userRepo.findOne({
+            where: { resetToken: token }
+        })
+    }
+
+    findUserById(id: number): Promise<UserResponseDto> {
         return this.userRepo.findOne({
             where: {
                 id: id
@@ -33,7 +39,7 @@ export class UserService {
         })
     }
 
-    searchUserByName(name: string) {
+    searchUserByName(name: string): Promise<UserResponseDto[]> {
         return this.userRepo.findUserByName(name)
     }
 }

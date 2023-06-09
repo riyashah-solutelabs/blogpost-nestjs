@@ -25,4 +25,15 @@ export class EmailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendResetPasswordEmail(to: string,subject: string, resetLink: string) {
+    const mailOptions: nodemailer.SendMailOptions = {
+      from: 'amp@gmail.com',
+      to,
+      subject,
+      html : resetLink,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
 }

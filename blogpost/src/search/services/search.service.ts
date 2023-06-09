@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import MeiliSearch, { Index, SearchParams } from "meilisearch";
 import { Constants } from "../../utils/constants";
+import { PostResponseDto } from "src/response";
 
 @Injectable()
 export class SearchService {
@@ -24,20 +25,20 @@ export class SearchService {
         const index = this.getPostIndex();
         return await index.addDocuments(documents);
     }
-    public async addDocuments(documents) {
+    public async addDocuments(documents): Promise<Record<string, any>> {
         const index = this.getUserIndex();
         return await index.addDocuments(documents);
     }
-    public async DeleteUserDocuments() {
+    public async DeleteUserDocuments(): Promise<Record<string, any>> {
         const index = this.getUserIndex();
         return await index.deleteAllDocuments();
     }
-    public async DeletePostDocuments() {
+    public async DeletePostDocuments(): Promise<Record<string, any>> {
         const index = this.getPostIndex();
         return await index.deleteAllDocuments();
     }
 
-    public async search(user: any, text: string, searchParams?: SearchParams) {
+    public async search(user: any, text: string, searchParams?: SearchParams): Promise<Record<string, any>> {
         const index = this.getPostIndex();
         const search = await index.search(text, searchParams);
         if (user.role === Constants.ROLES.NORMAL_ROLE) {
@@ -46,7 +47,7 @@ export class SearchService {
             return search;
         }
     }
-    public async searchUser(user: any, name: string, searchParams?: SearchParams) {
+    public async searchUser(user: any, name: string, searchParams?: SearchParams): Promise<Record<string, any>> {
         const index = this.getUserIndex();
         const search = await index.search(name, searchParams);
         if (user.role === Constants.ROLES.NORMAL_ROLE) {

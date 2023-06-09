@@ -59,6 +59,12 @@ export class User {
     @OneToMany(() => Comment, comment => comment.dislikedBy)
     dislikedComments: Comment[];
 
+    @Column({ default: null})
+    resetToken: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    resetTokenExpiration: Date
+
 
     @BeforeInsert()
     updateSubsription() {
