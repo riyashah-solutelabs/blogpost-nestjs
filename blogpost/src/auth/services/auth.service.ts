@@ -135,12 +135,12 @@ export class AuthService {
       throw new ForbiddenException(ErrorMessage.NOT_ALLOWED)
     }
 
-    const resetToken = this.generateResetToken(userData.id);
+    const resetToken = await this.generateResetToken(userData.id);
     const subject = 'Reset Password';
     const resetLink = `<p> click here to reset pw :</p> https://example.com/reset-password?token=${resetToken}`;
     // const resetLink = `https://example.com/reset-password?token=${resetToken}`;
 
-    this.emailService.sendResetPasswordEmail(user.email, subject, resetLink);
+    await this.emailService.sendResetPasswordEmail(user.email, subject, resetLink);
 
     return { message: 'Password reset link has been sent to your email' };
   }
@@ -166,9 +166,6 @@ export class AuthService {
       // Token is not associated with any user, return false
       throw new ForbiddenException(ErrorMessage.NOT_ALLOWED)
     }
-
-    console.log(token)
-    console.log(userData)
     // Check if the reset token has expired
     const currentTime = new Date();
     console.log(userData.resetTokenExpiration)
