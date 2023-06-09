@@ -1,4 +1,4 @@
-import { Body, Controller, Get, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { ForgotPasswordDto, ResetPasswordDto, UserDto } from '../../dtos';
 import { CreateUserDto } from '../../dtos';
 import { AuthService } from '../services/auth.service';
@@ -8,7 +8,7 @@ import { GetUser, Roles } from '../../decorator';
 import { Constants } from 'src/utils/constants';
 import { UpdatePasswordDto, LoginUserDto } from '../../dtos';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { MessageResponseDto, TokenResponseDto, UserResponseDto } from 'src/response';
+import { MessageResponseDto, TokenResponseDto } from 'src/response';
 
 @ApiTags('Auth')
 @ApiSecurity('JWT-Auth')

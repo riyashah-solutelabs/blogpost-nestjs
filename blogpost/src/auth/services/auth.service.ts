@@ -1,12 +1,11 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto, ForgotPasswordDto, ResetPasswordDto } from '../../dtos';
 import { UserRepository } from '../../user/repository/user.repo';
-import { User } from '../../entities';
 import { UserService } from '../../user/services/user.service';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { JwtService } from '@nestjs/jwt';
-import { LoginUserDto, UpdatePasswordDto } from '../../dtos';
+import { UpdatePasswordDto } from '../../dtos';
 import { EmailService } from './email.service';
 import { v4 as uuidv4 } from 'uuid';
 import { MessageResponseDto, TokenResponseDto, UserResponseDto } from 'src/response';
@@ -138,7 +137,6 @@ export class AuthService {
     const resetToken = await this.generateResetToken(userData.id);
     const subject = 'Reset Password';
     const resetLink = `<p> click here to reset pw :</p> https://example.com/reset-password?token=${resetToken}`;
-    // const resetLink = `https://example.com/reset-password?token=${resetToken}`;
 
     await this.emailService.sendResetPasswordEmail(user.email, subject, resetLink);
 

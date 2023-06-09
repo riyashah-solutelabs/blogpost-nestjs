@@ -1,10 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { JwtGuard, RolesGuard, SubscriptionGuard } from '../../auth/guards';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { GetUser, Roles } from '../../decorator';
-import { CreateCommenttDto } from '../../dtos';
 import { ReplyService } from '../services/reply.service';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { User } from 'src/entities';
 import { CreateReplyDto } from 'src/dtos/reply.dto';
 import { Constants } from 'src/utils/constants';
 import { MessageResponseDto, ReplyResponseDto } from 'src/response';

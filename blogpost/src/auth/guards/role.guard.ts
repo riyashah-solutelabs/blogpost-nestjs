@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserService } from '../../user/services/user.service';
 import { Constants } from 'src/utils/constants';
 
 @Injectable()

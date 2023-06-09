@@ -1,7 +1,6 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PostRepository } from '../repository/post.repo';
 import { CreatePostDto, UpdatePostDto } from '../../dtos';
-import { Post } from 'src/entities';
 import { PostResponseDto, MessageResponseDto } from '../../response';
 import { ErrorMessage } from 'src/utils/errorMessage';
 
@@ -23,48 +22,12 @@ export class PostService {
     }
 
     async getPosts(): Promise<PostResponseDto[]> {
-        const posts = await this.postRepo
-            .createQueryBuilder('post')
-            .leftJoinAndSelect('post.likedBy', 'likedBy')
-            .leftJoinAndSelect('post.dislikedBy', 'dislikedBy')
-            .leftJoinAndSelect('post.author', 'author')
-            .leftJoinAndSelect('post.comments', 'comments')
-            .leftJoinAndSelect('comments.replies', 'replies')
-            .leftJoinAndSelect('replies.parentReply', 'parentReply')
-            .leftJoinAndSelect('replies.childReplies', 'nestedReplies')
-            .select([
-                'post',
-                'likedBy.id',
-                'author.id',
-                'dislikedBy.id',
-                'comments',
-                'replies',
-                'parentReply',
-                'nestedReplies'
-            ])
-            .orderBy('post.createdAt', 'DESC')
-            .addOrderBy('post.totalLikes', 'DESC')
-            .addOrderBy('comments', 'DESC')
-            .addOrderBy('post.totalDisLikes', 'DESC')
-            .where('post.totalDisLikes < :dislikes', { dislikes: 15 })
-            .getMany();
-
-        return posts;
+        return await this.postRepo.getPosts()
     }
 
     async getPostById(postId: number): Promise<PostResponseDto> {
 
-        const post = await this.postRepo
-            .createQueryBuilder('post')
-            .leftJoinAndSelect('post.likedBy', 'likedBy')
-            .leftJoinAndSelect('post.dislikedBy', 'dislikedBy')
-            .leftJoinAndSelect('post.author', 'author')
-            .leftJoinAndSelect('post.comments', 'comments')
-            .select(['post', 'likedBy', 'author.id', 'dislikedBy', 'comments'])
-            .where('post.id = :id', { id: postId })
-            .getOne();
-
-        return post;
+        return await this.postRepo.getPostById(postId)
     }
 
     async postLike(user, postId: number): Promise<MessageResponseDto> {

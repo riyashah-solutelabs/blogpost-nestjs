@@ -1,5 +1,5 @@
 import { Constants } from "../utils/constants"
-import { BeforeInsert, BeforeSoftRemove, BeforeUpdate, Column, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Post } from "./";
 import { Comment } from "./";
 import { Reply } from "./reply.entity";
