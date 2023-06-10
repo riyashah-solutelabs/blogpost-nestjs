@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateReplyDto } from 'src/dtos/reply.dto';
 import { PostRepository } from '../repository/post.repo';
-import { CommentResponseDto, MessageResponseDto, ReplyResponseDto } from '../../response';
+import { MessageResponseDto, ReplyResponseDto } from '../../response';
 import { ErrorMessage } from 'src/utils/errorMessage';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class ReplyService {
         private replyRepository: Repository<Reply>,
     ) { }
 
-    async addReplyToComment(user: any, postId: number, commentId: number, createReply: CreateReplyDto): Promise<ReplyResponseDto> {
+    async addReplyToComment(user: any, postId: string, commentId: string, createReply: CreateReplyDto): Promise<ReplyResponseDto> {
         const post = await this.postRepo.findOne({
             where: {
                 id: postId
@@ -46,7 +46,7 @@ export class ReplyService {
         return this.replyRepository.save(reply);
     }
 
-    async createReplyToChild(user, postId: number, commentId: number, parentId: number, createReplyDto: CreateReplyDto): Promise<ReplyResponseDto> {
+    async createReplyToChild(user, postId: string, commentId: string, parentId: string, createReplyDto: CreateReplyDto): Promise<ReplyResponseDto> {
         const post = await this.postRepo.findOne({
             where: {
                 id: postId
@@ -102,9 +102,10 @@ export class ReplyService {
     }
 
 
-    async deleteCommentReply(user, postId: number, commentId: number, replyId: number): Promise<MessageResponseDto> {
+    async deleteCommentReply(user, postId: string, commentId: string, replyId: string): Promise<MessageResponseDto> {
 
         const post = await this.postRepo.findOne({
+            relations: ['author'],
             where: {
                 id: postId
             }
@@ -113,7 +114,7 @@ export class ReplyService {
             throw new NotFoundException(ErrorMessage.POST_NOT_FOUND)
         }
         const comment = await this.commentRepo.findOne({
-            relations: ['replies'],
+            relations: ['replies', 'user'],
             where: {
                 id: commentId
             }
@@ -136,7 +137,8 @@ export class ReplyService {
             throw new NotFoundException(ErrorMessage.PARENT_REPLY_NOT_FOUND);
         }
 
-        if (parentReply.user.id === user.userId || user.role === Constants.ROLES.ADMIN_ROLE || user.role === Constants.ROLES.SUPERADMIN_ROLE) {
+        // console.log(post.author.id)
+        if (parentReply.user.id === user.userId || user.role === Constants.ROLES.ADMIN_ROLE || user.role === Constants.ROLES.SUPERADMIN_ROLE || post.author.id === user.userId || comment.user.id === user.userId) {
             await this.replyRepository.delete(replyId)
             return {
                 message: 'Comment Deleted Successfully!'
@@ -148,7 +150,7 @@ export class ReplyService {
     }
 
 
-    async likeCommentReply(user, postId: number, commentId: number, replyId: number): Promise<MessageResponseDto> {
+    async likeCommentReply(user, postId: string, commentId: string, replyId: string): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.postRepo.findOne({
             where: {
@@ -203,7 +205,7 @@ export class ReplyService {
 
     }
 
-    async dislikeCommentReply(user, postId: number, commentId: number, replyId: number): Promise<MessageResponseDto> {
+    async dislikeCommentReply(user, postId: string, commentId: string, replyId: string): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.postRepo.findOne({
             where: {
@@ -220,9 +222,9 @@ export class ReplyService {
             }
         });
         console.log(comment)
-        const replyPost = comment.replies.find((reply) => reply.id == replyId);
+        const replyPost = comment.replies.find((reply) => reply.id === replyId);
         if(!replyPost) {
-            const childreplyPost = comment.replies.find(reply => reply.childReplies.find((reply) => reply.id == replyId));
+            const childreplyPost = comment.replies.find(reply => reply.childReplies.find((reply) => reply.id === replyId));
             if (!childreplyPost) {
                 throw new NotFoundException(ErrorMessage.COMMENT_NOT_FOUND);
             }

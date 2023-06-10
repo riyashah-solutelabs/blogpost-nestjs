@@ -23,7 +23,7 @@ export class SuperAdminService {
         return admin;
     }
 
-    async DeleteAllPost(postId: number): Promise<MessageResponseDto> {
+    async DeleteAllPost(postId: string): Promise<MessageResponseDto> {
         const post = await this.adminService.getPostById(postId);
         if (!post) {
             throw new NotFoundException(ErrorMessage.NOT_FOUND);
@@ -34,7 +34,7 @@ export class SuperAdminService {
         }
     }
 
-    async DeleteAdmin(userId: number): Promise<MessageResponseDto> {
+    async DeleteAdmin(userId: string): Promise<MessageResponseDto> {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId
@@ -53,7 +53,7 @@ export class SuperAdminService {
         }
     }
 
-    async changeAdminStatus(userId: number): Promise<MessageResponseDto> {
+    async changeAdminStatus(userId: string): Promise<MessageResponseDto> {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId

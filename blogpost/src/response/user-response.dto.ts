@@ -3,7 +3,7 @@ import { Comment, Post, Reply } from "src/entities";
 
 export class UserResponseDto {
     @ApiProperty()
-    id: number;
+    id: string;
     
     @ApiProperty()
     name: string;

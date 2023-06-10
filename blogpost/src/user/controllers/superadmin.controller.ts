@@ -34,7 +34,7 @@ export class SuperAdminController {
     @HttpCode(204)
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Delete('/admin/:userId')
-    DeleteAdmin(@Param('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
+    DeleteAdmin(@Param('userId') userId: string): Promise<MessageResponseDto> {
         return this.superadminService.DeleteAdmin(userId);
     }
 
@@ -47,7 +47,7 @@ export class SuperAdminController {
     @HttpCode(204)
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Delete('/post/:postId')
-    DeleteAllPost(@Param('postId', ParseIntPipe) postId: number): Promise<MessageResponseDto> {
+    DeleteAllPost(@Param('postId') postId: string): Promise<MessageResponseDto> {
         return this.superadminService.DeleteAllPost(postId);
     }
 
@@ -59,7 +59,7 @@ export class SuperAdminController {
     })
     @Roles(Constants.ROLES.SUPERADMIN_ROLE)
     @Patch('/status/:userId')
-    changeAdminStatus(@Param('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
+    changeAdminStatus(@Param('userId') userId: string): Promise<MessageResponseDto> {
         return this.superadminService.changeAdminStatus(userId);
     }
 

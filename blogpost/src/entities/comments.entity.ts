@@ -2,11 +2,15 @@ import { User } from "./";
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Post } from "./post.entity";
 import { Reply } from "./reply.entity";
+import { v4 as uuid } from 'uuid';
 
 @Entity()
 export class Comment {
-  @PrimaryGeneratedColumn()
-  id: number;
+  // @PrimaryGeneratedColumn()
+  // id: number;
+
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   description: string;

@@ -4,7 +4,7 @@ import { User, Comment } from "src/entities";
 
 export class PostResponseDto {
   @ApiProperty()
-  id: number;
+  id: string;
 
   @ApiProperty()
   title: string;

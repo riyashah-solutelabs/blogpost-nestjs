@@ -4,8 +4,11 @@ import { User } from "./user.entity";
 
 @Entity()
 export class Reply {
-  @PrimaryGeneratedColumn()
-  id: number;
+  // @PrimaryGeneratedColumn()
+  // id: number;
+
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   description: string;

@@ -13,7 +13,7 @@ export class CommentService {
         private postService: PostService
     ) { }
 
-    async addComment(user, postId: number, createcomment: CreateCommenttDto): Promise<CommentResponseDto> {
+    async addComment(user, postId: string, createcomment: CreateCommenttDto): Promise<CommentResponseDto> {
         const post = await this.postService.getPostById(postId);
         if (!post) {
             throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
@@ -27,7 +27,7 @@ export class CommentService {
         return this.commentRepo.save(comment);
     }
 
-    async deleteComment(user, postId, commentId): Promise<MessageResponseDto> {
+    async deleteComment(user, postId: string, commentId: string): Promise<MessageResponseDto> {
         const post = await this.postService.getPostById(postId);
         if (!post) {
             throw new NotFoundException(ErrorMessage.POST_NOT_FOUND)
@@ -53,7 +53,7 @@ export class CommentService {
         }
     }
 
-    async likeComment(user, postId: number, commentId: number): Promise<MessageResponseDto> {
+    async likeComment(user, postId: string, commentId: string): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.postService.getPostById(postId);
         if (!post) {
@@ -90,7 +90,7 @@ export class CommentService {
 
     }
 
-    async dislikeComment(user, postId: number, commentId: number): Promise<MessageResponseDto> {
+    async dislikeComment(user, postId: string, commentId: string): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.postService.getPostById(postId);
         if (!post) {

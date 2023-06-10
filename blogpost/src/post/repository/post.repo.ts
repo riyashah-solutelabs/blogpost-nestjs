@@ -45,7 +45,7 @@ export class PostRepository extends Repository<Post>{
         return posts;
     }
 
-    async getPostById(postId: number): Promise<PostResponseDto> {
+    async getPostById(postId: string): Promise<PostResponseDto> {
 
         const post = await this
             .createQueryBuilder('post')

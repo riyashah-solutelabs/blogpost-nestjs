@@ -20,7 +20,7 @@ export class AdminService {
         })
     }
 
-    async deleteUser(userId: number, user: any): Promise<MessageResponseDto> {
+    async deleteUser(userId: string, user: any): Promise<MessageResponseDto> {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId
@@ -56,7 +56,7 @@ export class AdminService {
         }
     }
 
-    async changeUserStatus(userId: number, user: any): Promise<MessageResponseDto> {
+    async changeUserStatus(userId: string, user: any): Promise<MessageResponseDto> {
         const getUser = await this.userRepo.findOne({
             where: {
                 id: userId
@@ -105,7 +105,7 @@ export class AdminService {
         return posts;
     }
 
-    async getPostByUserId(userId: number): Promise<PostResponseDto[]> {
+    async getPostByUserId(userId: string): Promise<PostResponseDto[]> {
         const posts = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.author', 'author')
@@ -117,7 +117,7 @@ export class AdminService {
         return posts;
     }
 
-    async getPostById(postId: number): Promise<PostResponseDto> {
+    async getPostById(postId: string): Promise<PostResponseDto> {
         const post = await this.postRepo
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.likedBy', 'likedBy')
@@ -130,7 +130,7 @@ export class AdminService {
         return post;
     }
 
-    async adminDeletePost(postId: number): Promise<MessageResponseDto> {
+    async adminDeletePost(postId: string): Promise<MessageResponseDto> {
         const post = await this.getPostById(postId);
         if (!post) {
             throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);

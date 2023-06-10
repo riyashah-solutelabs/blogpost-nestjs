@@ -31,7 +31,7 @@ export class UserService {
         })
     }
 
-    findUserById(id: number): Promise<UserResponseDto> {
+    findUserById(id: string): Promise<UserResponseDto> {
         return this.userRepo.findOne({
             where: {
                 id: id

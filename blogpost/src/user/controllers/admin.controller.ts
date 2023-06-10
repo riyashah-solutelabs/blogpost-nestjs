@@ -50,7 +50,7 @@ export class AdminController {
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Get('/:userId/posts')
-    getPostByUserId(@Param('userId', ParseIntPipe) userId: number): Promise<PostResponseDto[]> {
+    getPostByUserId(@Param('userId') userId: string): Promise<PostResponseDto[]> {
         return this.adminService.getPostByUserId(userId)
     }
 
@@ -65,7 +65,7 @@ export class AdminController {
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Get('/posts/:postId')
-    getPostById(@Param('postId', ParseIntPipe) postId: number): Promise<PostResponseDto> {
+    getPostById(@Param('postId') postId: string): Promise<PostResponseDto> {
         return this.adminService.getPostById(postId)
     }
 
@@ -78,7 +78,7 @@ export class AdminController {
     @HttpCode(204)
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Delete('/deletepost/:postId')
-    adminDeletePost(@Param('postId', ParseIntPipe) postId: number): Promise<MessageResponseDto> {
+    adminDeletePost(@Param('postId') postId: string): Promise<MessageResponseDto> {
         return this.adminService.adminDeletePost(postId);
     }
 
@@ -91,7 +91,7 @@ export class AdminController {
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @HttpCode(204)
     @Delete('/user/:userId')
-    DeleteUsers(@GetUser() user, @Param('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
+    DeleteUsers(@GetUser() user, @Param('userId') userId: string): Promise<MessageResponseDto> {
         return this.adminService.deleteUser(userId, user);
     }
 
@@ -103,7 +103,7 @@ export class AdminController {
     })
     @Roles(Constants.ROLES.ADMIN_ROLE, Constants.ROLES.SUPERADMIN_ROLE)
     @Patch('/userstatus/:userId')
-    changeUserStatus(@GetUser() user, @Param('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
+    changeUserStatus(@GetUser() user, @Param('userId') userId: string): Promise<MessageResponseDto> {
         return this.adminService.changeUserStatus(userId, user);
     }
 

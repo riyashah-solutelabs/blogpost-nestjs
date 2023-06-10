@@ -56,7 +56,7 @@ export class AuthController {
     @Roles(Constants.ROLES.NORMAL_ROLE)
     // @UseGuards(RolesGuard)
     @Patch('subscribe')
-    getSubscription(@GetUser('userId', ParseIntPipe) userId: number): Promise<MessageResponseDto> {
+    getSubscription(@GetUser('userId') userId: string): Promise<MessageResponseDto> {
         return this.authService.getSubscription(userId);
     }
 

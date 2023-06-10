@@ -25,12 +25,12 @@ export class PostService {
         return await this.postRepo.getPosts()
     }
 
-    async getPostById(postId: number): Promise<PostResponseDto> {
+    async getPostById(postId: string): Promise<PostResponseDto> {
 
         return await this.postRepo.getPostById(postId)
     }
 
-    async postLike(user, postId: number): Promise<MessageResponseDto> {
+    async postLike(user, postId: string): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.getPostById(postId);
         if (!post) {
@@ -58,7 +58,7 @@ export class PostService {
     }
 
 
-    async postDisLike(user, postId: number): Promise<MessageResponseDto> {
+    async postDisLike(user, postId: string): Promise<MessageResponseDto> {
         const { userId, ...userData } = user;
         const post = await this.getPostById(postId);
         if (!post) {
@@ -85,7 +85,7 @@ export class PostService {
         }
     }
 
-    async updatePost(userId: number, postId: number, postData: UpdatePostDto): Promise<PostResponseDto> {
+    async updatePost(userId: string, postId: string, postData: UpdatePostDto): Promise<PostResponseDto> {
         const post = await this.getPostById(postId);
         if (!post) {
             throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);
@@ -98,7 +98,7 @@ export class PostService {
         throw new ForbiddenException('You are not allowed to update this post');
     }
 
-    async deletePost(user, postId: number): Promise<MessageResponseDto> {
+    async deletePost(user, postId: string): Promise<MessageResponseDto> {
         const post = await this.getPostById(postId);
         if (!post) {
             throw new NotFoundException(ErrorMessage.POST_NOT_FOUND);

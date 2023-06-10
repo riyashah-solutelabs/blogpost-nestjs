@@ -41,7 +41,7 @@ export class AuthService {
 
     const subject = 'Welcome to Our Website';
     const html = '<p>Thank you for signing up!.</p>';
-    await this.emailService.sendWelcomeEmail(userData.email, subject, html);
+    this.emailService.sendWelcomeEmail(userData.email, subject, html);
 
     // Create a new user and save it
     return await this.userRepo.save(user);
@@ -110,7 +110,7 @@ export class AuthService {
     }
   }
 
-  async getSubscription(userId): Promise<MessageResponseDto> {
+  async getSubscription(userId: string): Promise<MessageResponseDto> {
     const user = await this.userService.findUserById(userId);
     if (user.subscribed === true) {
       throw new ConflictException(ErrorMessage.SUBSCRIPTION_CONFLICT)
@@ -129,8 +129,7 @@ export class AuthService {
     if (!userData) {
       throw new NotFoundException(ErrorMessage.NOT_FOUND);
     }
-    console.log("userrrrrrr")
-    if (userData.id != user.userId) {
+    if (userData.id !== user.userId) {
       throw new ForbiddenException(ErrorMessage.NOT_ALLOWED)
     }
 
@@ -143,7 +142,7 @@ export class AuthService {
     return { message: 'Password reset link has been sent to your email' };
   }
 
-  async generateResetToken(userId: number): Promise<string> {
+  async generateResetToken(userId: string): Promise<string> {
     // Generate a unique reset token using UUID or any other library
     const resetToken = uuidv4();
     // Store the reset token in the database along with user ID and expiration timestamp
@@ -160,7 +159,8 @@ export class AuthService {
     // Verify the reset token and allow password reset
     const userData = await this.userService.findByToken(token);
 
-    if (!userData || userData.id != user.userId) {
+    console.log(userData.id !== user.userId)
+    if (!userData || userData.id !== user.userId) {
       // Token is not associated with any user, return false
       throw new ForbiddenException(ErrorMessage.NOT_ALLOWED)
     }

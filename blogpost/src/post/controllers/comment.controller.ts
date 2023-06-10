@@ -19,7 +19,7 @@ export class CommentController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post(':postId')
-    addComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Body() comment: CreateCommenttDto ): Promise<CommentResponseDto> {
+    addComment(@GetUser() user, @Param('postId') postId: string, @Body() comment: CreateCommenttDto ): Promise<CommentResponseDto> {
         return this.commentService.addComment(user, postId, comment);
     }
 
@@ -31,7 +31,7 @@ export class CommentController {
     @ApiNoContentResponse({ description: 'comment deleted successfully' })
     @HttpCode(204)
     @Delete('posts/:postId/comments/:commentId')
-    deleteComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number): Promise<MessageResponseDto> {
+    deleteComment(@GetUser() user, @Param('postId') postId: string, @Param('commentId') commentId: string): Promise<MessageResponseDto> {
         return this.commentService.deleteComment(user, postId, commentId);
     }
 
@@ -45,7 +45,7 @@ export class CommentController {
     })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('posts/:postId/comments/:commentId/like')
-    likeComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number): Promise<MessageResponseDto> {
+    likeComment(@GetUser() user, @Param('postId') postId: string, @Param('commentId') commentId: string): Promise<MessageResponseDto> {
         return this.commentService.likeComment(user, postId, commentId);
     }
 
@@ -59,7 +59,7 @@ export class CommentController {
     })
     @Roles(Constants.ROLES.NORMAL_ROLE)
     @Post('posts/:postId/comments/:commentId/dislike')
-    dislikeComment(@GetUser() user, @Param('postId', ParseIntPipe) postId: number, @Param('commentId', ParseIntPipe) commentId: number): Promise<MessageResponseDto> {
+    dislikeComment(@GetUser() user, @Param('postId') postId: string, @Param('commentId') commentId: string): Promise<MessageResponseDto> {
         return this.commentService.dislikeComment(user, postId, commentId);
     }
 }

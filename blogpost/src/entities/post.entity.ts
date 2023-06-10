@@ -4,8 +4,11 @@ import { Comment } from "./comments.entity";
 
 @Entity()
 export class Post {
-    @PrimaryGeneratedColumn()
-    id: number;
+    // @PrimaryGeneratedColumn()
+    // id: number;
+
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
     @Column()
     title: string;

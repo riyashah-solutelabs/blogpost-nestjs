@@ -5,7 +5,7 @@ import { Reply } from "src/entities/reply.entity";
 export class CommentResponseDto {
 
   @ApiProperty()
-  id: number;
+  id: string;
 
   @ApiProperty()
   description: string;
